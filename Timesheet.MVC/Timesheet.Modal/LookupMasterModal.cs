@@ -35,7 +35,11 @@ namespace Timesheet.Modal
 
         public int MakerId { get; set; }
         public string ParentName { get; set; }
-        public string CRTypeName { get; set; }          //CR TypeName Added by Piyush 
+
+        //CR TypeName Added by Piyush 
+        public string CRTypeName { get; set; }
+        //Task Name Added by Piyush 
+        public string TaskName { get; set; }
 
     }
 

@@ -126,11 +126,12 @@ namespace Timesheet.Database.DataService
 
             
         }
-        public List<TimesheetSearchResultModal> Search(string Fromdate, string ToDate, int? activityId, int? projectId, bool? billable, int? resourceId, int? crNumberId, int? crProjectId  )
+        public List<TimesheetSearchResultModal> Search(string Fromdate, string ToDate, int? activityId, int? tasksId, int? projectId, bool? billable, int? resourceId, int? crNumberId, int? crProjectId  )
         {
             SqlParameter ps_Fomdate = new SqlParameter("ps_FromDate", Fromdate);
-            SqlParameter ps_ToDate = new SqlParameter("ps_ToDate ", ToDate);
+            SqlParameter ps_ToDate = new SqlParameter("ps_ToDate ", ToDate);    
             SqlParameter pn_activityId = new SqlParameter("pn_ActivityId", activityId);
+            SqlParameter pn_tasksId = new SqlParameter("pn_TasksId", tasksId);   // Added By Piyush
             SqlParameter pn_projectId = new SqlParameter("pn_ProjectId", projectId);
             SqlParameter pn_billable = new SqlParameter("pn_Billable", billable);
             SqlParameter pn_resourceId = new SqlParameter("pn_Resource", resourceId);
@@ -143,7 +144,7 @@ namespace Timesheet.Database.DataService
 
 
             DataSet ds = SqlHelper.ExecuteDataset(CommandType.StoredProcedure, Timesheet.Common.Constants.spSearchTimeSheet, new SqlParameter[]{
-            ps_Fomdate,ps_ToDate,pn_activityId,pn_projectId,pn_billable,pn_resourceId,pn_crNumberId,pn_crProjectId
+            ps_Fomdate,ps_ToDate,pn_activityId,pn_tasksId,pn_projectId,pn_billable,pn_resourceId,pn_crNumberId,pn_crProjectId
             ,pn_Error,ps_Msg
             });
 
@@ -156,11 +157,12 @@ namespace Timesheet.Database.DataService
                 ResourceName = x.Field<string>("ResourceName"),
                 ProjectName = x.Field<string>("ProjectName"),
                 Activity = x.Field<string>("Activity"),
+                Tasks = x.Field<string>("Tasks"),                    // Added By Piyush 
                 Billable = x.Field<string>("Billable"),
                 Comments = x.Field<string>("Comments"),
                 CreatedOn = x.Field<DateTime>("CreatedOn"),
                 CrNumber = x.Field<string>("CrNumber"),
-                CrTypeName = x.Field<string>("CrTypeName"),   // Added by Piyush CRTypeName
+                CrTypeName = x.Field<string>("CrTypeName"),           // Added by Piyush CRTypeName
                 Efforts = x.Field<decimal>("Efforts"),
                 Efforts_Days = x.Field<decimal>("Efforts_days"),
                 Status = x.Field<string>("Status"),
@@ -189,11 +191,12 @@ namespace Timesheet.Database.DataService
                 SqlParameter pn_ProjectId = new SqlParameter("pn_ProjectId", modal.ProjectId);
                 SqlParameter pn_CrId = new SqlParameter("pn_CrId", modal.CrNumberId);
                 SqlParameter pn_ActivityId = new SqlParameter("pn_ActivityId", modal.ActivityId);
+                SqlParameter pn_TasksId = new SqlParameter("pn_TasksId", modal.TasksId);                   //Added by Piyush to send SubTasks Id
                 SqlParameter ps_SubActivity = new SqlParameter("ps_SubActivity", modal.SubActivity);
                 SqlParameter pn_Efforts = new SqlParameter("pn_Efforts", modal.Efforts);
                 SqlParameter pn_ActualEfforts = new SqlParameter("pn_ActualEfforts", modal.Efforts);
-                SqlParameter pn_IsBillable = new SqlParameter("pn_IsBillable", modal.IsBillable);
-
+                SqlParameter pn_IsBillable  = new SqlParameter("pn_IsBillable", modal.IsBillable);
+                
                 SqlParameter pb_IsSubmitted = new SqlParameter("pb_IsSubmitted", modal.IsSubmit);
                 SqlParameter ps_Comments = new SqlParameter("ps_Comments", modal.Comments);
                 SqlParameter pn_MakerId = new SqlParameter("pn_MakerId", modal.ResourceId);
@@ -213,6 +216,7 @@ namespace Timesheet.Database.DataService
             pn_ProjectId,
             pn_CrId,
             pn_ActivityId,
+            pn_TasksId,
             ps_SubActivity,
             pn_Efforts,
             pn_ActualEfforts,

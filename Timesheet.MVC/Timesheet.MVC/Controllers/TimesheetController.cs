@@ -86,7 +86,7 @@ namespace Timesheet.MVC.Controllers
             
         }
         public JsonResult Search(TimesheetSearchModal model)
-        {
+            {
             if (model.Resource == null)
             {
                 model.Resource = (int)TempData.Peek("resourceid");
@@ -228,6 +228,7 @@ namespace Timesheet.MVC.Controllers
             dtTimesheet.Columns.Remove("ActualEfforts");
             dtTimesheet.Columns.Remove("VisibleToUser");            
             dtTimesheet.Columns.Remove("ActivityId");
+            
             dtTimesheet.Columns.Remove("CrLongName");
             dtTimesheet.Columns.Remove("OnsiteManagerName");
             dtTimesheet.Columns.Remove("ProjectType");
@@ -237,7 +238,10 @@ namespace Timesheet.MVC.Controllers
             dtTimesheet.Columns["ResourceName"].ColumnName = "Resource Name";
             dtTimesheet.Columns["ProjectName"].ColumnName = "Project";
             dtTimesheet.Columns["CrNumber"].ColumnName = "CR Number";
-            dtTimesheet.Columns["CrTypeName"].ColumnName = "Cr Type";          // Added CrType Name
+          
+            dtTimesheet.Columns["CrTypeName"].ColumnName = "Cr Type";       // Added CrType Name
+            dtTimesheet.Columns["Tasks"].ColumnName = "Tasks";     // Addded by Piyush 
+
             dtTimesheet.Columns["Activity"].ColumnName = "Activity";
             dtTimesheet.Columns["SubActivity"].ColumnName = "Sub Activity";
             dtTimesheet.Columns["Efforts"].ColumnName = "Efforts (Hrs)";
@@ -635,6 +639,17 @@ namespace Timesheet.MVC.Controllers
 
 
                                                                }).ToList(), "Value", "Text");
+
+            // Added by Piyush to fetch data for dropdown in timesheet
+
+            ViewBag.TaskList = new SelectList(
+                            Query.Where(x => x.MasterName.ToUpper() == "TASKS").Select(x => new SelectListItem()
+                            {
+                                Text = x.Text,   
+                                Value = x.Value
+                            }).ToList(), "value", "Text");
+
+
             ViewBag.ProjectList = new SelectList(
                                       Query.Where(x => x.MasterName.ToUpper() == "PROJECT").Select(x => new SelectListItem()
                                       {
