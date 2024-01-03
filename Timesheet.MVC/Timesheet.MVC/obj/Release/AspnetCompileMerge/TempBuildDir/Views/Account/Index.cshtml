@@ -1,0 +1,104 @@
+﻿@model Timesheet.Modal.Login
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using(Html.BeginForm("Index","Account",FormMethod.Post,new {id="loginForm"}))
+{ 
+
+
+<style>
+    .centerdiv {
+    width: 450px;
+    height: 250px;
+    border:1px solid #808080;
+    box-shadow: 0px 0px 5px 0px #888888;
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    margin: auto;
+}
+    tr{
+        line-height:2px;
+        height:35px;
+    }
+</style>
+
+<div class="centerdiv" role="main" style="background-image:url(../../Content/images/secure-login.jpg);background-repeat:no-repeat;background-position:5px 50px;background-size:auto">
+    <div class="ui-state-default " style="padding:5px">
+        Login
+    </div>
+    <div style="padding: 5px;margin:auto;width:70%;position:relative;top:10%">
+        <table align="center">
+            
+            <tr>
+                
+                <td>@Html.LabelFor(m=>m.userid) : </td>
+                <td>
+                @Html.TextBoxFor(m => m.userid, new { @style = "width:180px;text-transform:capitalize" ,@class="form-control"})
+              
+            </tr>
+            <tr>
+                <td>@Html.LabelFor(m => m.password) : </td>
+                <td>
+                    @Html.PasswordFor(m => m.password, new { @style = "width:180px",@class="form-control"} )
+
+                </td>
+            </tr>
+            <tr style="display:none;">
+                <td>&nbsp;</td>
+                <td >
+                    Login With Windows Auth
+                    @Html.CheckBoxFor(m => m.UseWindowsAuth, new {disabled="disabled" })
+
+                </td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td align="right">
+                    <button type="submit" onclick="javacript:$('#usermenu').slideToggle()" class="btn btn-default btn-sm">
+
+
+                        Login <span class="glyphicon glyphicon-log-in"></span> 
+                        
+
+
+                    </button>
+
+                    
+                </td>
+            </tr>
+            
+        </table>
+        <div class="has-error">
+            @Html.ValidationSummary()
+
+        </div>
+    </div>
+</div>
+}
+<script>
+    $(document).ready(function () {
+
+        $("#UseWindowsAuth").trigger("change");
+    });
+    $("#UseWindowsAuth").change(function()
+    {
+        if($(this).prop("checked") == true)
+        {
+            $(".form-control").attr("disabled", "disabled");
+
+        }
+        else
+        {
+            $(".form-control").removeAttr("disabled");
+
+        }
+
+    })
+</script>

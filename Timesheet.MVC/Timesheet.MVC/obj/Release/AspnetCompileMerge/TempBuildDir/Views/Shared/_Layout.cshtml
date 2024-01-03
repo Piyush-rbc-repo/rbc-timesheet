@@ -1,0 +1,126 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/jqueryval")
+
+    @Scripts.Render("~/bundles/JqGrid")
+    <style>
+        .arrow_box:after, .arrow_box:before {
+            bottom: 100%;
+            left: 10%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .arrow_box:after {
+            border-color: rgba(255, 255, 255, 0);
+            border-bottom-color: #fff;
+            border-width: 5px;
+            margin-left: -5px;
+        }
+
+        .arrow_box:before {
+            border-color: rgba(59, 68, 74, 0);
+            border-bottom-color: #3b444a;
+            border-width: 6px;
+            margin-left: -6px;
+        }
+
+        <style > #menu ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #menu ul li:hover {
+            background-color: #fff;
+        }
+
+        #menu ul li {
+            float: left;
+            border-top-left-radius: 15px;
+            line-height: 24px;
+            padding: 5px;
+            text-align: center;
+            background-color: #eaeaea;
+        }
+Viewbag.Titl
+            #menu ul li:not(last-child) {
+                border-left: 1px solid #111;
+            }
+
+            #menu ul li:last-child {
+                border-right: 1px solid #111;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top" style="height:50px">
+        <div class="container">
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div>
+                    <div style="color:#fff;">
+                        @*<div style="display:block;z-index:999;position:absolute;" id="menu">
+                            <ul>
+                                <li style="display: inline;">@Html.ActionLink("Timesheet", "Index", "Timesheet")</li>
+                                <li style="display: inline;">@Html.ActionLink("Dashboard", "Index", "Report")</li>
+                                <li style="display: inline;">@Html.ActionLink("Masters", "Index", "Master")</li>
+                            </ul>
+                        </div>*@
+                    </div>
+                    <div class="nav navbar-text navbar-right" style="color:#fff;">
+                        <button type="button" onclick="javacript:$('#usermenu').slideToggle()" class="btn btn-default btn-sm">
+                            <span class="glyphicon glyphicon-user"></span> @Session["IUserName"].ToString()
+                        </button>
+                        <div class="arrow_box" style="display:none;z-index:999;position:absolute;padding:5px;background-color:#fff;color:#111;border-radius:5px;border-bottom-right-radius:5px;box-shadow: 1px 1px 1px #888888;" id="usermenu">
+                            <ul style="list-style:none;line-height:3;padding:2px;min-width:150px">                                
+                                @if (Session["IRole"].ToString() == "Project Manager" || Session["IRole"].ToString() == "Admin")
+                                {
+                                <li><span class="glyphicon glyphicon-calendar"></span> @Html.ActionLink("Timesheet", "Index", "Timesheet")</li>
+                                <li><span class="glyphicon glyphicon-time"></span> @Html.ActionLink("Dashboard", "Index", "Report")</li>
+                                }
+                                @if (Session["IRole"].ToString() == "Admin")
+                                {
+                                <li><span class="glyphicon glyphicon-book"></span> @Html.ActionLink("Masters", "Index", "Master")</li>                                
+                                }
+                           
+                                <li><span class="glyphicon glyphicon-log-out"></span> @Html.ActionLink("Logout", "Logout", "Account")</li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="navbar-header">
+                    @Html.ActionLink("Login", "index", "Account", new { area = "" }, new { @class = "navbar-brand" })
+                </div>
+            }
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Timesheet</p>
+        </footer>
+    </div>
+    @RenderSection("scripts", required: false)
+</body>
+</html>

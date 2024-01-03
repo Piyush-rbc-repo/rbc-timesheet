@@ -1,0 +1,15 @@
+﻿@model  Timesheet.Modal.LookupMasterModal
+
+@using(Ajax.BeginForm("Create", new AjaxOptions() { HttpMethod = "post", OnSuccess = "onSuccess", OnFailure="onFailure"}))
+{
+    
+        <div class="form-group" style="height:150px;border:1px solid #dadada">
+            @Html.HiddenFor(m=>m.n_Id)
+            <div class="col-lg-2">
+                @Html.LabelFor(m => m.n_ParentId)
+                @Html.DropDownListFor(m => m.n_ParentId, (SelectList)ViewBag.Master, "Select",new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.n_ParentId)
+                </div>
+                    </div>
+    
+}

@@ -1,0 +1,101 @@
+﻿@model Timesheet.Modal.ReportSearchModal
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using (Ajax.BeginForm("search", null, new AjaxOptions() { HttpMethod = "post", OnSuccess = "onSuccess", OnFailure = "onFailure" }, new { id = "searchForm" }))
+{
+    <div id="formdiv" style="height:45px;background-color:#dfdfdf ;padding-top:5px;margin-bottom:10px">
+        <div class="col-lg-cust_12">
+            @Html.LabelFor(m => m.ResourceId)
+            @Html.DropDownListFor(m => m.ResourceId, (SelectList)ViewBag.ResouceLst, "All", new { @class = "form-control"})
+        </div>
+        <div class="col-lg-cust_12">
+            @Html.LabelFor(m => m.MonthId)
+            @Html.DropDownListFor(m => m.MonthId, (SelectList)ViewBag.MonthLst, "Select", new { @class = "form-control", @id = "ddlMonthId", style = "width: 130px;" })
+            @Html.ValidationMessageFor(m => m.MonthId, "", new { @class = "help-block" })
+        </div>
+        <div class="col-lg-cust_12">
+
+            @Html.LabelFor(m => m.WeekId)
+            @Html.DropDownListFor(m => m.WeekId, (SelectList)ViewBag.WeekIdLst, "Select", new { @class = "form-control", @id = "ddlWeekId" })
+            @Html.ValidationMessageFor(m => m.WeekId, "", new { @class = "help-block" })
+        </div>
+        <div class="col-lg-cust_12">
+            <div>&nbsp</div>
+
+            @Html.CheckBoxFor(m => m.statusId)@Html.LabelFor(m => m.statusId)
+
+        </div>
+
+        <div class="col-lg-cust_12">
+
+            <div>&nbsp;</div>
+            <input type="submit" onclick="return clearAll()" accesskey="f" value="Search" />
+            @if (Session["IRole"].ToString() == "Admin")
+            {
+                <input type="button" accesskey="e" id="LinkExport" value="Export" />
+
+            }
+            @*  added By Sasmita*@
+            @if (Session["IRole"].ToString() == "Admin")
+            {
+                <input type="button" accesskey="g" id="LinkMonthlyExport" value="MonthlyExport" />
+            }
+
+
+
+
+            </div>
+    </div>
+    <div style="height:270px ;">
+        <div style="width:60%;float:left">
+            <table id="listSummary"></table>
+            <div id="listSummarypager">
+            </div>
+
+        </div>
+
+
+        <div id="divCrSum" style="width:40%;float:right; display:none;">
+            <table  style="width:100%;background:#f1fbda;border-top-left-radius:5px;border-top-right-radius:5px;border:1px solid #111">
+                <tr style="line-height:1.2">
+                    <th id="appName" colspan="6" style="padding-left:5px;">&nbsp;</th>
+                </tr>
+                <tr style="background:#f1fbda;line-height:1.5">
+                    <th style="padding-left:5px;" width="50">SDLC : </th>
+                    <td id="SDLC" align="left" >&nbsp;</td>
+                    <th width="40">Dev : </th>
+                    <td align="left" id="Dev">&nbsp;</td>
+                    <th width="40">Q.A. : </th>
+                    <td align="left" id="QA">&nbsp;</td>
+                </tr>
+            </table>
+            
+            <table id="crPrjSummary"></table>
+            <div id="crPrjSummarypager">
+            </div>
+
+        </div>
+
+    </div>
+    <div class="ui-divider">&nbsp;</div>
+    <div id="detaildatalist" style="display:none">
+      
+        <table id="list"></table>
+        <div id="listpager"></div>
+    </div>
+    <div style="display:none" id="rejectionDialog">
+        <label>Please mention rejection reason</label>
+        <textarea id="txtreject" autofocus="autofocus" rows="3" cols="30" ></textarea>
+        <span style="float:right">Max 300 Chars.</span>
+        
+        
+    </div>
+
+    @*<div>
+        <input type="hidden" value="@ViewBag.hdnFlag" id="hdnFlag" />
+        </div>*@
+}
+<script src="~/Scripts/ReportCustom.js"></script>
+

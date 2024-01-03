@@ -1,0 +1,87 @@
+﻿@model Timesheet.Modal.TimesheetSearchModal
+
+
+@using (Ajax.BeginForm("Search", null, new AjaxOptions { HttpMethod = "post", OnSuccess = "onSearchSuccess", OnFailure = "onFailure" }, new { id = "searchForm" }))
+{
+<div class="form-group" id="formdiv" style="border:1px solid #dadada;height:50px;background-color:#dfdfdf">
+    <div>&nbsp;</div>
+    <div class="col-lg-2">
+        @Html.DisplayNameFor(m => m.FromDate)
+
+        @Html.TextBoxFor(m => m.FromDate, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.FromDate, null, new { @class = "has-error" })
+    </div>
+
+    <div class="col-lg-2">
+        @Html.DisplayNameFor(m => m.ToDate)
+        @Html.TextBoxFor(m => m.ToDate, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.ToDate, null, new { @class = "has-error" })
+    </div>
+
+
+    @*<div class="col-lg-2" style="display:none">
+            @Html.DisplayNameFor(m => m.Activity)
+            @Html.DropDownListFor(m => m.Activity, (SelectList)ViewBag.ActivityList, "Select", new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.Activity)
+        </div>*@
+
+    <div class="col-lg-2" style="display:block">
+        @Html.DisplayNameFor(m => m.Project)
+        @Html.DropDownListFor(m => m.Project, (SelectList)ViewBag.ProjectList, "Select Project", new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Project)
+    </div>
+
+    @*<div class="col-lg-2" style="display:block">
+            @Html.DisplayNameFor(m => m.Resource)
+            @Html.DropDownListFor(m => m.Resource, (SelectList)ViewBag.ResourceList, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.Resource)
+        </div>*@
+
+    <div class="col-lg-1">
+        @Html.DisplayNameFor(m => m.Cr)
+        @Html.DropDownListFor(m => m.Cr, (SelectList)ViewBag.CrList, "Select CR", new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Cr)
+    </div>
+    <div class="col-lg-1" style="display:block">
+        @Html.DisplayNameFor(m => m.Billable)
+        @Html.DropDownListFor(m => m.Billable, (SelectList)ViewBag.BillableEnum, "Select", new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Billable)
+    </div>
+    <div class="col-lg-1">
+        <div>&nbsp;</div>
+        <input type="submit" onclick="ClearCreateForm();return true" id="search" value="Search" />
+    </div>
+    @if (Session["IRole"].ToString() == "Admin" || Session["IRole"].ToString() == "Project Manager")
+    {
+    <div class="col-lg-1" style="display:block">
+       
+        @Html.DisplayNameFor(m => m.Resource)
+        @Html.DropDownListFor(m => m.Resource, (SelectList)ViewBag.ResourceList, "All", new { @class = "form-control" })
+
+        @*@Html.DisplayNameFor(m => m.ResourceId)
+        @Html.DropDownListFor(m => m.ResourceId, (SelectList)ViewBag.ResourceList, "All", new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Resource)*@
+
+        @*@Html.DisplayName("Resources")
+        @Html.DropDownList("Resources",
+             (SelectList)ViewBag.ResourceList,
+                "All",
+                new { @class = "form-control" })*@
+    </div>
+        <div class="col-lg-2">
+            <div>&nbsp;</div>
+            <input type="button" accesskey="e" id="LinkExport" value="Export" />
+
+            @*added by Sasmita *@           
+            <input type="button" accesskey="f" id="LinkExportDefaulter" value="ExportDefaulterList" />
+
+        </div>
+       
+
+    }
+    <div class="clearfix"></div>
+
+
+    @*<div style="float:right;margin-top:10px" onmouseover="javascript: $('#formdiv').css('margin-top', '0px'); $(this).hide();">Search</div>*@
+</div>
+}

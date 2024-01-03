@@ -1,0 +1,40 @@
+﻿@model Timesheet.MVC.Models.LookupMasterSearchModal
+
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using (Ajax.BeginForm("Search", null, new AjaxOptions() { HttpMethod = "post", OnSuccess = "onSuccess", }, new {id="searchForm"}))
+{ 
+
+<div class="clearfix"></div>
+<div class="form-group">
+    <div class="col-lg-4">
+        @Html.LabelFor(x => x.MasterName)
+        @Html.DropDownListFor(x => x.MasterName, ((SelectList)ViewBag.Master), "Select", new { @class = "form-control" })
+
+    </div>
+    <div style="background-color:#ede9e9;height:50px;padding-top:5px">
+
+       
+        <div class="col-lg-1 ">
+            @Html.Label(" ")
+            <input type="submit" class="form-control glyphicon-pencil accesskey=" f" value="Search" />
+        </div>
+
+    </div>
+    <div class="nav-divider"></div>
+    <div class="clearfix"></div>
+    <div id="divdata">
+
+    </div>
+    <div id="divload">
+        <table id="list"></table>
+        <table id="listPager"></table>
+
+    </div>
+</div>
+}
+
+<script src="~/Scripts/MasterCustom.js"></script>

@@ -1,0 +1,57 @@
+﻿@model Timesheet.Modal.TimesheetViwmodal
+
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@{Html.RenderPartial("Search",Model.timesheetSearchModal);}
+@{Html.RenderPartial("Create", Model.timesheetCreateModal);}
+
+
+<div class="form-group" id="datalist" style="position:relative">
+    <input type="button" id="btnSubmitPartially" title="Submit"  value="Submit TS" style="background-color:#78BFAC; width:120px;height:20px" />  
+    <input type="button" title="Submit for approval" onclick="submit()" value="Submit Monthly TS" style="background-color:#3f7756;float:right;height:20px" />
+     
+    <table id="list"></table>
+    <div id="listpager"></div>
+</div>
+<div style="display:none" id="divbulk">
+    <div style="background-color: #ccc1c1; ">
+        <div style="height:90px;padding: 0px">
+            <label class="btn btn-primary" for="file1">
+                <input type="file" id="file1" accept=".xls, .xlsx" style="display:none;" onchange="$('#upload-file-info').html($(this).val().split('\\')[$(this).val().split('\\').length-1]);">
+                Browse File
+            </label> 
+            <div>
+                
+                <span>Overwrite matching date's data :</span>  <input type="checkbox" checked="checked" id="chb_overwrite" title="" /> 
+            </div>
+            <span class='label label-info' id="upload-file-info"></span>
+
+
+            <div style="display:none;height:2px;box-shadow:1px;border:1px solid #00ff90;margin-bottom:10px;width:0px;background-color:#78BFAC" id="uploadProgressBar">
+            </div>
+            <div >
+                <br />
+                <input type="button" class="pull-right" id="btn_bulkupload" value="Upload" onclick="UploadFile(this)" />
+            </div>
+
+        </div>
+    </div>
+    <div>
+            
+        
+    </div>
+</div>
+
+<style>
+    .ui-datepicker{
+        z-index: 99999 !important
+
+    }
+
+</style>
+<script src="~/Scripts/TimesheetCustom.js"></script>
