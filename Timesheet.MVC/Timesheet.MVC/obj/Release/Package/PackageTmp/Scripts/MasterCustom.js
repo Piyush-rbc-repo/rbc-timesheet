@@ -33,7 +33,7 @@ var ActivityMaster = {
     'ColNameModal': ["Activity Name", "Active Status"],
     'button': true
 },
-ProjectMaster = {
+    ProjectMaster = {
         'ColModal': [
             { name: "s_MasterCode", width: 250, edittype: 'text', editrules: { required: true }, editable: true },
             { name: "s_MasterName", width: 250, edittype: 'text', editrules: { required: true }, editable: true },
@@ -44,23 +44,34 @@ ProjectMaster = {
             { name: "s_value6", width: 130, edittype: 'select', editable: true, required: true, editoptions: { value: "Support:Support;Other:Other" } },
             { name: "b_IsActive", width: 130, edittype: 'select', editable: true, required: true, editoptions: { value: "true:Yes;false:No" } },
 
+
+
         ],
         'ColNameModal': ["Project Code", "Project Name", "SDLC Cost", "Dev Cost", "QA Cost", "Onsite Manager Name", "Project Type", "Active Status"],
         'button': true
-},
-
-// CrtypeMaster added as new module (accesible to admin role)
- 
-CrTypeMaster = {
+    },
+    // CrtypeMaster added as new module (accesible to admin role)
+    CrTypeMaster = {
         'ColModal': [
-                { name: "s_MasterCode", width: 250, edittype: 'text', editrules: { required: true }, editable: true },
-                { name: "s_MasterName", width: 250, edittype: 'text', editrules: { required: true }, editable: true },
-              
-                { name: "b_IsActive", width: 130, edittype: 'select', editable: true, required: true, editoptions: { value: "true:Yes;false:No" } },
+            { name: "s_MasterCode", width: 250, edittype: 'text', editrules: { required: true }, editable: true },
+            { name: "s_MasterName", width: 250, edittype: 'text', editrules: { required: true }, editable: true },
+            { name: "b_IsActive", width: 130, edittype: 'select', editable: true, required: true, editoptions: { value: "true:Yes;false:No" } },
+
         ],
-        'ColNameModal': ["CR Type Code","CR Type Name","Is Active"],
+        'ColNameModal': ["CR Type Code", "CR Type Name", "Is Active"],
         'button': true
-},
+    },
+    TasksMaster = {
+        'ColModal': [
+            { name: "s_MasterCode", width: 250, edittype: 'text', editrules: { required: true }, editable: true },
+            { name: "s_MasterName", width: 250, edittype: 'text', editrules: { required: true }, editable: true },
+            { name: "b_IsActive", width: 130, edittype: 'select', editable: true, required: true, editoptions: { value: "true:Yes;false:No" } },
+
+        ],
+        'ColNameModal': ["Task Id", "Task Name", "Is Active"],
+        'button': true
+    },
+    
     CRMaster = {
         'ColModal': [
             
@@ -71,9 +82,11 @@ CrTypeMaster = {
 
             { name: "n_RefId", index: 'n_RefId', width: 250, editable: true, hidden: true, edittype: 'select', editrules: { edithidden: true }, required: true, editoptions: { dataUrl: '/Master/GetDropDownValues?parentid=3&IsActive=true', custom_value: myvalue } },
             { name: "ParentName", index: 'ParentName', width: 250, editable: false, edittype: 'hidden', editrules: { edithidden: false }, required: true, editoptions: { dataUrl: '/Master/Master?parentid=3', custom_value: myvalue } },
-
-
+            // Parent Id for CR Type  is = 4301 on Prod and 4272 on Dev in LookUp Master
+            /*Column visible as CR type in CR Number*/
             { name: "s_value6", index: 's_value6', width: 250, editable: true, hidden: true, edittype: 'select', editrules: { edithidden: true }, required: true, editoptions: { dataUrl: '/Master/GetDropDownValues?parentid=4272&IsActive=true', custom_value: myvalue } },
+
+            /*dropdown for CR type*/
             { name: "CRTypeName", index: 'CRTypeName', width: 250, editable: false, edittype: 'hidden', editrules: { edithidden: false }, required: true, editoptions: { dataUrl: '/Master/Master?parentid=4272', custom_value: myvalue } },
 
 
@@ -86,7 +99,7 @@ CrTypeMaster = {
         ],
         'ColNameModal': ["CR Code", "CR Name", "CR Long Name", "Project", "Project Name", "CR Type", "CR Type", "SDLC Cost", "Dev Cost", "QA Cost", "Is OLS CR", "IsActive"],
         'button': true
-    },x 
+    },
 ResourceMaster = {
     'ColModal': [
                 { name: "s_MasterCode", width: 250, edittype: 'text', editrules: { required: true }, editable: true },
@@ -187,12 +200,15 @@ HolidayMaster = {
 
 mastermodal.push(ActivityMaster);
 mastermodal.push(CRMaster);
+/*CR Type pushed to masterModal */
 mastermodal.push(CrTypeMaster);
+
 mastermodal.push(HolidayMaster);
 mastermodal.push(MniMaxDayMaster);
 mastermodal.push(ProjectMaster);
 mastermodal.push(ResourceMaster);
 mastermodal.push(StatusMaster);
+mastermodal.push(TasksMaster);
 //mastermodal.push(WeekMaster);
 mastermodal.push(YearMaster);
 

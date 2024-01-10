@@ -16,7 +16,7 @@ namespace Timesheet.Database.DataInterface
         CommoSaveResult Update(TimesheetCreateModal modal, string comm);
         TimesheetSubmitValidationResult DeleteSubmit(string ids, bool Delete, bool submit, int userid,bool partialSubmit=false);
         List<SelectListModal> GetAllDropdown();
-        List<TimesheetSearchResultModal> Search(string Fromdate, string ToDate, int? activityId, int? projectId, bool? billable, int? resourceId, int? crNumberId, int? crProjectId);
+        List<TimesheetSearchResultModal> Search(string Fromdate, string ToDate, int? activityId, int? tasksId, int? projectId, bool? billable, int? resourceId, int? crNumberId, int? crProjectId);
         List<TimesheetSearchResultModal> GetDashboard(ReportSearchModal modal);
         CommoSaveResult ApproveReject(TimesheetApproverModal modal, int userid,bool insertRecords );
         ProjectDashboardModal GetProjectCrBasedDashboard(ProjectCrBasedSearchModal modal);

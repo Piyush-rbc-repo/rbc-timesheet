@@ -55,8 +55,8 @@ namespace Timesheet.Service.ServiceLibrary
         public List<TimesheetSearchResultModal> Search(TimesheetSearchModal modal)
         {
 
-            return _TimesheetDL.Search(modal.FromDate, modal.ToDate, modal.Activity, modal.Project, modal.Billable, modal.Resource, modal.Cr, modal.CrProject);
-            
+          return _TimesheetDL.Search(modal.FromDate, modal.ToDate, modal.Activity, modal.Tasks, modal.Project, modal.Billable, modal.Resource, modal.Cr, modal.CrProject);
+           
         }
 
 

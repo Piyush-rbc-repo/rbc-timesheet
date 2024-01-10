@@ -32,15 +32,12 @@ namespace Timesheet.MVC.Controllers
 
         public JsonResult Search(LookupMasterSearchModal modal)
         {
-                List<Modal.LookupMasterModal> result = GetMasterData(modal.MasterName);
-            
+            List<Modal.LookupMasterModal> result = GetMasterData(modal.MasterName);
             return Json(result, JsonRequestBehavior.AllowGet);
 
 
 
         }
-
-
         public ContentResult Master(int parentid)
         {
 
@@ -52,7 +49,6 @@ namespace Timesheet.MVC.Controllers
 
 
         }
-
         /// <summary>
         /// Function is used to display only active records of project and Cr Type in dropdowno of CR Number Master 
         /// for Parent_Id = 4 CR types will be displayed
@@ -61,7 +57,6 @@ namespace Timesheet.MVC.Controllers
         /// <param name="parentid"></param>
         /// <param name="IsActive"></param>
         /// <returns></returns>
-
         public ContentResult GetDropDownValues(int parentid,bool IsActive)
         {
 
@@ -70,6 +65,7 @@ namespace Timesheet.MVC.Controllers
 
 
             return Content(s);
+
             
 
         }

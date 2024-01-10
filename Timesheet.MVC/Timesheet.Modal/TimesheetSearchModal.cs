@@ -19,6 +19,9 @@ namespace Timesheet.Modal
         [Display(Name = "Activity")]
         public int? Activity { get; set; }
 
+        [Display(Name = "Tasks")]           // Added By piyush for storing subtask 
+        public int? Tasks { get; set; }
+
         [Display(Name = "Project")]
         public int? Project { get; set; }
 
@@ -27,7 +30,6 @@ namespace Timesheet.Modal
 
         [Display(Name = "Resource")]
         public int? Resource { get; set; }
-
 
         // CR Type Added By Piyush 
         [Display(Name = "Cr Type")]
@@ -51,6 +53,8 @@ namespace Timesheet.Modal
         public string CrNumber { get; set; }
         public string CrTypeName { get;set; }
         public string Activity { get; set; }
+         
+        public string Tasks { get;set; }   // Added By piyush for storing subtask 
         public string SubActivity { get; set; }
         public decimal Efforts { get; set; }
         public decimal Efforts_Days { get; set; }
@@ -112,7 +116,11 @@ namespace Timesheet.Modal
         [Display(Name = "Sub Activity")]
         public string SubActivity { get; set; }
 
-        
+        [Required(ErrorMessage="Required")]
+        [Display(Name="Tasks")]
+        public int TasksId { get; set; }
+
+
         [Required(ErrorMessage = "Required")]
         [Range(0.1,999.99,ErrorMessage="Invalid Value")]
         [Display(Name = "Efforts (Hrs.)")]
