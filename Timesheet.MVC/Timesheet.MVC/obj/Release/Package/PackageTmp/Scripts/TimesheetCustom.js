@@ -352,7 +352,7 @@ function loadTimesheetGrid() {
         autowidth: true,
         
         altRows: false,
-        colNames: ["Id", "Activity Date", "Resource Name", "Project Name", "Cr Name", "Activity", "Sub Activity",
+        colNames: ["Id", "Activity Date", "Resource Name", "Project Name", "Cr Name", "Activity", "Sub Activity", "Tasks",
                     "Efforts (Hrs.)", "Efforts (Days)", "Billable", "Comments",
                     "Status", "n_status", "RejectionReason", "Edit","Copy", "Delete"],
         colModel: [
@@ -363,6 +363,9 @@ function loadTimesheetGrid() {
             { index: 'CrNumber', name: "CrNumber", width: 70 },
             { index: 'Activity', name: "Activity", width: 150 },
             { index: 'SubActivity', name: "SubActivity", width: 150 },
+            { index: 'Tasks', name: "Tasks", width: 150 },
+      
+
             { index: 'Efforts', name: "Efforts", width: 80, align: "right" },
             { index: 'Efforts_Days', name: "Efforts_Days", width: 80, align: "right" },
             { index: 'Billable', name: "Billable", width: 50, },
@@ -413,7 +416,7 @@ function loadTimesheetGrid() {
         height: "400px",
         multiselect: false,
         viewrecords: true,
-        gridview: true,
+        gridview: true, 
         autoencode: true,
         caption: "",
         footerrow: true,
@@ -537,7 +540,7 @@ function submitDelet(rowids, mode,partialSubmit) {
 
                     $("#list").jqGrid('setGridParam', { data: griddata }).trigger('reloadGrid');
                 }
-                toastr.options.positionClass = 'toast-top-center';
+                toastr.options.positionClass = 'toast-top                       center';
                 toastr.options.timeOut = '1000';
                 toastr["success"](ResultObj.result.ps_Msg);
             }
@@ -567,6 +570,7 @@ function FillEdit(object) {
     var ProjectName = obj.ProjectName;
     var ResourceName = obj.ResourceName;
     var SubActivity = obj.SubActivity;
+    var Tasks = obj.Tasks;
     var n_id = obj.n_id;
     console.log(CrNumber);
     $("#Id").val(n_id);
@@ -574,6 +578,11 @@ function FillEdit(object) {
         //may want to use $.trim in here
         return $(this).text() == Activity;
     }).prop('selected', true);
+    $('#TasksId option').filter(function () {
+        //may want to use $.trim in here
+        return $(this).text() == Tasks;
+    }).prop('selected', true);
+
     $("#ResourceId option").filter(function () {
         //may want to use $.trim in here
         return $(this).text() == ResourceName;
@@ -620,11 +629,17 @@ function Duplicate(object)
     var IsSubmitted = obj.IsSubmitted;
     var ProjectName = obj.ProjectName;
     var ResourceName = obj.ResourceName;
+    var Tasks = obj.Tasks;
     var SubActivity = obj.SubActivity;
+    var Tasks = obj.Tasks;
 
     $('#ActivityId option').filter(function () {
         //may want to use $.trim in here
         return $(this).text() == Activity;
+    }).prop('selected', true);
+    $('#TasksId option').filter(function () {
+        //may want to use $.trim in here
+        return $(this).text() == Tasks;
     }).prop('selected', true);
     $("#ResourceId option").filter(function () {
         //may want to use $.trim in here
@@ -710,11 +725,12 @@ var onSuccess = function (resultobj) {
     var CrNumber = ($('#CrNumberId option:selected').val() == "" ? "" : $('#CrNumberId option:selected').text());
 
     var Activity = $('#ActivityId option:selected').text();
+    var Tasks = $('#TasksId option:selected').text();
 
 
     var newobj = {
         n_id: result.Id, ActivityDate: result.Activitydate, ResourceName: resourceName, ProjectName: ProjName, CrNumber: CrNumber, Activity: Activity,
-        SubActivity: result.SubActivity, Efforts: result.Efforts, Efforts_Days: parseFloat(result.Efforts) / 8.0, Billable: (result.IsBillable ? 'Yes' : 'No'), Comments: result.Comments,
+        SubActivity: result.SubActivity, Tasks : Tasks,Efforts: result.Efforts, Efforts_Days: parseFloat(result.Efforts) / 8.0, Billable: (result.IsBillable ? 'Yes' : 'No'), Comments: result.Comments,
         Status: 'Saved',
         /*IsSubmitted: (result.IsSubmit ? 'Submitted' : 'Saved'),*/
     }
@@ -868,8 +884,9 @@ function UploadFile(btn)
 
 
 var onSearchSuccess = function (result) {
+    
     jQuery("#list").jqGrid('clearGridData').trigger('reloadGrid');
-    var data = [];
+    var data = [];  
     if (result.length == undefined) {
         data.push(result);
 
@@ -896,7 +913,7 @@ function ClearCreateForm() {
     $("#Id").val("");
     $('#ActivityId option').removeAttr('selected');
     $("#ResourceId option").removeAttr('selected');
-
+    $('#TasksId option').removeAttr('selected');
     $("#ProjectId option").removeAttr('selected');
 
     $("#CrNumberId option").removeAttr('selected');

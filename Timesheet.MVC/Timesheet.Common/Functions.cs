@@ -29,11 +29,12 @@ namespace Timesheet.Common
                 foreach (PropertyDescriptor prop in properties)
                     row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
                 table.Rows.Add(row);
+
             }
             return table;
 
         }
-
+        
         /*to convert a list modal to an xml*/
         public static string CreateXml<T>(this IList<T> modal)
         {

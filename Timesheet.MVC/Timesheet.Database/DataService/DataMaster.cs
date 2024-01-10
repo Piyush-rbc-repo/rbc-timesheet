@@ -68,7 +68,8 @@ namespace Timesheet.Database.DataService
                         s_value4 = x["value4"].ToString(),
                         s_value5 = x["value5"].ToString(),
                         s_value6 = x["value6"].ToString(),
-                        CRTypeName = x["CRTypeName"].ToString(),  // CrtypeName recieved from database
+                        CRTypeName = x["CRTypeName"].ToString(),// CrtypeName recieved from database
+                        /*TaskName = x["TaskName"].ToString(),//TaskName recieved from database*/
                         ParentName = x["ReferenceName"].ToString(),
                         b_IsActive = x.Field<bool>("IsActive"),
 
