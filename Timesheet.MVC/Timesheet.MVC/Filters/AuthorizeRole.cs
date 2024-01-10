@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -11,10 +12,10 @@ namespace Timesheet.MVC.Filters
     public sealed class UserRole
     {
         private UserRole() { }
-
         public const string Manager = "Project Manager";
         public const string Admin = "Admin";
         public const string Developer = "Senior Developer";
+        public const string Default = "Default";
     }
     public class AuthorizeRole : AuthorizeAttribute
     {
@@ -29,30 +30,29 @@ namespace Timesheet.MVC.Filters
 
         protected override bool AuthorizeCore(HttpContextBase httpContext)
         {
-            if (base.AuthorizeCore(httpContext))
-            {
-                //if (!UserRoles.Any())
-                //    return true;
-
-                if (Array.Exists(UserRoles, E => E == httpContext.Session["IRole"].ToString()))
-                {
-                    return true;
-                }
-
-            }
+            if (httpContext.Session["IRole"] == null)
+                return false;
+            var pageAccess = CheckPageAccess(UserRoles, httpContext);
+            if (base.AuthorizeCore(httpContext) && pageAccess)
+                return true;
             return false;
+        }
+
+        private bool CheckPageAccess(string[] UserRoles, HttpContextBase httpContext)
+        {
+            return UserRoles.Any(x => x == httpContext.Session["IRole"].ToString())
+                || UserRoles.Any(x => x == UserRole.Default);
         }
 
         protected override void HandleUnauthorizedRequest(
           AuthorizationContext filterContext)
         {
-         
-            filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary 
-                    { 
-                        { "Controller", "Error" }, 
-                        { "Action", "UnAuthorized" } 
-                    });
-
+            filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary
+                    {
+                        { "Controller", "Account" },
+                        { "Action", "Logout" },
+                        {"DisplayMessage","Session Timed out! Please Login Again!" }
+                    });//()
         }
     }
 }

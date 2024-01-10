@@ -38,9 +38,9 @@ namespace Timesheet.MVC.Controllers
         #region Action Methods
         public ActionResult Index()
         {
-            
+
             var monthyear = DateTime.Now.ToString("MMMM") + " - " + DateTime.Now.Year.ToString();
-            
+
             ReportSearchModal modal = new ReportSearchModal();
             FillDropdowns();
             modal.MonthId = (from s in (SelectList)ViewBag.MonthLst
@@ -55,14 +55,14 @@ namespace Timesheet.MVC.Controllers
         }
         public ActionResult Search(ReportSearchModal modal)
         {
- 
+
             List<TimesheetSearchResultModal> results = _IDashboardService.Search(modal);
             var result = results.Where(x => x.VisibleToUser == true).ToList();
             if(Session["IRole"].ToString() == "Project Manager")
             {
 
-            var resourceid = (int)TempData.Peek("resourceid");
-            results = results.Where(x => x.ManagerId == resourceid).ToList();
+                var resourceid = (int)TempData.Peek("resourceid");
+                results = results.Where(x => x.ManagerId == resourceid).ToList();
 
             }
 
@@ -73,7 +73,7 @@ namespace Timesheet.MVC.Controllers
                                ProjectName = r.ProjectName,
                                CrNumberId = (string.IsNullOrEmpty(r.CrNumber) ? null : r.CrNumberId),
                                ProjectId =r.ProjectId 
-                              // Cost = r.Approved_Cost
+                               // Cost = r.Approved_Cost
 
                            } into res
                            select new SummaryReport()
@@ -85,11 +85,11 @@ namespace Timesheet.MVC.Controllers
                                BilledHrs = (float)res.Sum(x => (x.Billable == "Yes" ? x.ActualEfforts : 0)),
                                BilledDays = (res.Sum(x => (x.Billable == "Yes" ? x.ActualEfforts /8  : 0))).ToString(),
                                UnBilledDays = (float)res.Sum(x => (x.Billable == "Yes" ? 0 : x.ActualEfforts / 8)),
-                              // UnBilledDays = (float)res.Sum(x => ((x.Efforts - x.ActualEfforts < 0 ? 0 : x.Efforts - x.ActualEfforts) / 8)),
+                               // UnBilledDays = (float)res.Sum(x => ((x.Efforts - x.ActualEfforts < 0 ? 0 : x.Efforts - x.ActualEfforts) / 8)),
                                ApprovedCost = (float)res.Sum(x=>x.Approved_Cost) 
                                //* (float)(res.Sum(x => (x.Billable == "Yes" ? x.Efforts_Days : 0)))
-                               
-                               
+
+
                            });
 
 
@@ -126,14 +126,14 @@ namespace Timesheet.MVC.Controllers
 
 
             return Json(res , JsonRequestBehavior.AllowGet);
-                
+
             //}
             //else
             //{
             //    return new HttpStatusCodeResult(400, "Please refetch the summary and try to get details of it!!!");
 
             //}
-            
+
         }
         public ActionResult ApproveReject(TimesheetApproverModal modal)
         {
@@ -143,7 +143,7 @@ namespace Timesheet.MVC.Controllers
 
                 return Json(new { pb_Error=true,ps_Msg="Invalid Session"}, JsonRequestBehavior.AllowGet);
             }
-           
+
 
             int userid = (int)TempData.Peek("resourceid");
             List<TimesheetSearchResultModal> Data = (List<TimesheetSearchResultModal>)TempData.Peek("details");
@@ -155,15 +155,15 @@ namespace Timesheet.MVC.Controllers
             }
 
             var result = _ITimesheetEntryService.ApproveReject(modal, userid, insertRecords);
-           
+
            return Json(result,JsonRequestBehavior.AllowGet);
         }
-        
-        [HttpPost] 
+
+        [HttpPost]
         public ActionResult ModifyData( List<TimesheetSearchResultModal> modal)
         {
            var result= _ITimesheetEntryService.UpdateRecordFromApproverDashboard(modal,0);
-           return Json(result, JsonRequestBehavior.DenyGet);
+            return Json(result, JsonRequestBehavior.DenyGet);
         }
 
         public ActionResult GetProjectCrLevelDashboard(ProjectCrBasedSearchModal modal)
@@ -178,9 +178,9 @@ namespace Timesheet.MVC.Controllers
 
             if (result.Count == 0)
             {
-                 RedirectToAction("NoDataFound", "Error");
+                RedirectToAction("NoDataFound", "Error");
             }
-          
+
             var groupedResult = result.GroupBy(x => x.ResoureId).Select(grp => grp.ToList()).ToList();
             var groupedResultCount = groupedResult.Count;
             return Json(groupedResultCount, JsonRequestBehavior.AllowGet);
@@ -193,7 +193,7 @@ namespace Timesheet.MVC.Controllers
 
             // Step 1 - get the data from database
             List<TimesheetSearchResultModal> result = _IDashboardService.Search(modal);
-            
+
             if(result.Count==0)
             {
                 return RedirectToAction("NoDataFound", "Error");
@@ -206,46 +206,46 @@ namespace Timesheet.MVC.Controllers
             //added by Sasmita to append Onshore/Offshore dynamically in excel filename
             strLocation = Convert.ToString(result.Select(x => x.Location).First());
             if(!string.IsNullOrEmpty(strLocation))
-            offshoreOnshoreFlag = strLocation.ToLower() == "india" ? "Offshore" : "Onshore";
+                offshoreOnshoreFlag = strLocation.ToLower() == "india" ? "Offshore" : "Onshore";
 
-            
-                // instantiate the GridView control from System.Web.UI.WebControls namespace
-                // set the data source
+
+            // instantiate the GridView control from System.Web.UI.WebControls namespace
+            // set the data source
             GridView gridview = new GridView();
-                gridview.AutoGenerateColumns = false;
-                gridview.Columns.Add(new BoundField() { DataField = "ActivityDate", HeaderText = "Date" });
-                gridview.Columns.Add(new BoundField() { DataField = "ResourceName", HeaderText = "Resource Name" });
-                gridview.Columns.Add(new BoundField() { DataField = "ProjectName", HeaderText = "Project" });
-                gridview.Columns.Add(new BoundField() { DataField = "CrNumber", HeaderText = "CR Number" });
-                gridview.Columns.Add(new BoundField() { DataField = "Activity", HeaderText = "Activity" });
-                gridview.Columns.Add(new BoundField() { DataField = "SubActivity", HeaderText = "Sub Activity" });
-                gridview.Columns.Add(new BoundField() { DataField = "ActualEfforts", HeaderText = "Efforts (Hrs)" });
-                gridview.Columns.Add(new BoundField() { DataField = "Efforts_Days", HeaderText = "Efforts (Days)" });
-                gridview.Columns.Add(new BoundField() { DataField = "Billable", HeaderText = "Billable Flag" });
-                gridview.Columns.Add(new BoundField() { DataField = "Comments", HeaderText = "Comments" });
-                gridview.DataSource = groupedResult[noOfRes];
-                gridview.DataBind();
-                gridview.Columns[0].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
-                gridview.Columns[1].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
-                gridview.Columns[2].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
-                gridview.Columns[3].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
-                gridview.Columns[4].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
-                gridview.Columns[5].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
-                gridview.Columns[6].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
-                gridview.Columns[7].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
-                gridview.Columns[8].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
-                gridview.Columns[9].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
+            gridview.AutoGenerateColumns = false;
+            gridview.Columns.Add(new BoundField() { DataField = "ActivityDate", HeaderText = "Date" });
+            gridview.Columns.Add(new BoundField() { DataField = "ResourceName", HeaderText = "Resource Name" });
+            gridview.Columns.Add(new BoundField() { DataField = "ProjectName", HeaderText = "Project" });
+            gridview.Columns.Add(new BoundField() { DataField = "CrNumber", HeaderText = "CR Number" });
+            gridview.Columns.Add(new BoundField() { DataField = "Activity", HeaderText = "Activity" });
+            gridview.Columns.Add(new BoundField() { DataField = "SubActivity", HeaderText = "Sub Activity" });
+            gridview.Columns.Add(new BoundField() { DataField = "ActualEfforts", HeaderText = "Efforts (Hrs)" });
+            gridview.Columns.Add(new BoundField() { DataField = "Efforts_Days", HeaderText = "Efforts (Days)" });
+            gridview.Columns.Add(new BoundField() { DataField = "Billable", HeaderText = "Billable Flag" });
+            gridview.Columns.Add(new BoundField() { DataField = "Comments", HeaderText = "Comments" });
+            gridview.DataSource = groupedResult[noOfRes];
+            gridview.DataBind();
+            gridview.Columns[0].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
+            gridview.Columns[1].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
+            gridview.Columns[2].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
+            gridview.Columns[3].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
+            gridview.Columns[4].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
+            gridview.Columns[5].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
+            gridview.Columns[6].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
+            gridview.Columns[7].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
+            gridview.Columns[8].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
+            gridview.Columns[9].HeaderStyle.BackColor = System.Drawing.Color.FromArgb(192, 192, 192);
             //gridview.Columns[0].ItemStyle.Width = 100;
             //gridview.HeaderRow.BackColor = System.Drawing.Color.FromArgb(192,192,192);
 
             // Clear all the content from the current response
 
-           
-            Response.ClearContent();               
-            Response.Buffer = true; 
-                DateTime dt = DateTime.ParseExact(groupedResult[noOfRes][0].ActivityDate, "dd/MM/yyyy",
-                                  CultureInfo.InvariantCulture);
-                string month = dt.ToString("MMMM");
+
+            Response.ClearContent();
+            Response.Buffer = true;
+            DateTime dt = DateTime.ParseExact(groupedResult[noOfRes][0].ActivityDate, "dd/MM/yyyy",
+                              CultureInfo.InvariantCulture);
+            string month = dt.ToString("MMMM");
             //string OutputFileName = (groupedResult[noOfRes][0].ResourceName.ToString()).Replace(' ', '_') + "_" +
             //                    DateTime.Parse(groupedResult[noOfRes][0].ActivityDate, new CultureInfo("en-CA")).ToString("MMMM") + "_" +
             //                    DateTime.Parse(groupedResult[noOfRes][0].ActivityDate, new CultureInfo("en-CA")).ToString("yyyy") + " _TIMESHEET_Offshore";
@@ -263,24 +263,24 @@ namespace Timesheet.MVC.Controllers
 
 
             // set the header
-            Response.AddHeader("content-disposition", "attachment;filename=" + OutputFileName + ".xls");            
-            Response.ContentType = "application/ms-excel";            
-            Response.Charset = ""; 
+            Response.AddHeader("content-disposition", "attachment;filename=" + OutputFileName + ".xls");
+            Response.ContentType = "application/ms-excel";
+            Response.Charset = "";
 
-                // create HtmlTextWriter object with StringWriter
-                using (StringWriter sw = new StringWriter())
+            // create HtmlTextWriter object with StringWriter
+            using (StringWriter sw = new StringWriter())
+            {
+                using (HtmlTextWriter htw = new HtmlTextWriter(sw))
                 {
-                    using (HtmlTextWriter htw = new HtmlTextWriter(sw))
-                    {
-                        // render the GridView to the HtmlTextWriter
-                        gridview.RenderControl(htw);
-                        // Output the GridView content saved into StringWriter
-                        Response.Output.Write(sw.ToString());
-                        Response.Flush();
-                        Response.End();
-                    }
+                    // render the GridView to the HtmlTextWriter
+                    gridview.RenderControl(htw);
+                    // Output the GridView content saved into StringWriter
+                    Response.Output.Write(sw.ToString());
+                    Response.Flush();
+                    Response.End();
                 }
-            
+            }
+
             return View();
         }
 
@@ -305,12 +305,12 @@ namespace Timesheet.MVC.Controllers
             ViewBag.hdnFlag = groupedResultCount;
 
             if(modal.ResourceId != null)
-            strLocation = Convert.ToString(result.Select(x => x.Location).First());
+                strLocation = Convert.ToString(result.Select(x => x.Location).First());
 
             if (!string.IsNullOrEmpty(strLocation))
                 offshoreOnshoreFlag = strLocation.ToLower() == "india" ? "_TIMESHEET_Offshore" : "_TIMESHEET_Onshore";
 
-            
+
             DateTime dt = DateTime.ParseExact(groupedResult[noOfRes][0].ActivityDate, "dd/MM/yyyy",
                              CultureInfo.InvariantCulture);
 
@@ -321,12 +321,12 @@ namespace Timesheet.MVC.Controllers
             // Append filename with "AllResources" when no Resource  is selected else append with selected Resource Name
 
             string OutputFileName = (modal.ResourceId == null ? "AllResources" : groupedResult[noOfRes][0].ResourceName.ToString()).Replace(' ', '_') + "_" +
-                                     month + "_" +                                     
+                                     month + "_" +
                                      dt.ToString("yyyy") +  offshoreOnshoreFlag;
 
 
             string worksheetName = (modal.ResourceId == null ? "AllResources" : groupedResult[noOfRes][0].ResourceName.ToString()).Replace(' ', '_');
-               // + "_" + month + "_" + dt.ToString("yyyy");
+            // + "_" + month + "_" + dt.ToString("yyyy");
 
             //Remove the unwanted columns which are not required to display in excel
             dtTimesheet.Columns.Remove("n_id");
@@ -365,11 +365,11 @@ namespace Timesheet.MVC.Controllers
             {
 
                 // wb.Worksheets.Add(dtTimesheet, worksheetName);
-               var wsTS = wb.Worksheets.Add(worksheetName);
+                var wsTS = wb.Worksheets.Add(worksheetName);
 
                 // Create Column Name Headers  and apply styling in Timesheet Report
                 string[] columnNamesInTS = (from dc in dtTimesheet.Columns.Cast<DataColumn>()
-                                                 select dc.ColumnName).ToArray();
+                                            select dc.ColumnName).ToArray();
 
                 for (int c = 0; c < columnNamesInTS.Length; c++)
                 {
@@ -380,7 +380,7 @@ namespace Timesheet.MVC.Controllers
                     wsTS.Cell(1, columnNumber).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     wsTS.Cell(1, columnNumber).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-                   
+
                 }
                 //Insert timesheet data
                 wsTS.Cell(2, 1).InsertData(dtTimesheet);
@@ -395,15 +395,15 @@ namespace Timesheet.MVC.Controllers
 
 
                 wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                wb.Style.Font.Bold = true;             
+                wb.Style.Font.Bold = true;
 
                 using ( MyMemoryStream = new MemoryStream())
                 {
                     wb.SaveAs(MyMemoryStream);
-                    MyMemoryStream.Position = 0;                   
+                    MyMemoryStream.Position = 0;
                 }
             }
-                                   
+
 
             return File(MyMemoryStream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", OutputFileName+".xlsx");
 
@@ -413,7 +413,7 @@ namespace Timesheet.MVC.Controllers
         //Added by Sasmita to Extract monthly report / Invoice in Multiple worksheets
         public ActionResult MonthlyExport(ReportSearchModal modal)
         {
-           
+
             MemoryStream MyMemoryStream = null;
 
             string summaryWorksheetName = string.Empty;
@@ -421,7 +421,7 @@ namespace Timesheet.MVC.Controllers
             string fixedBillingCreditNoteWorksheetName = string.Empty;
 
             DataTable dtSummary = new DataTable();
-           // dtSummary.Columns.Add("Sr. No.",typeof(int));
+            // dtSummary.Columns.Add("Sr. No.",typeof(int));
             dtSummary.Columns.Add("Location");
             dtSummary.Columns.Add("Project");
             dtSummary.Columns.Add("Total",typeof(decimal));
@@ -450,7 +450,7 @@ namespace Timesheet.MVC.Controllers
             DataTable dtSupportTeam = new DataTable();
             dtSupportTeam.Columns.Add("ResourceId",typeof(string));
             dtSupportTeam.Columns.Add("ResourceName", typeof(string));
-           // DataRow drSuppTeam;
+            // DataRow drSuppTeam;
 
             // Step 1 - get the data from database
             List<TimesheetSearchResultModal> result = _IDashboardService.Search(modal);
@@ -460,7 +460,7 @@ namespace Timesheet.MVC.Controllers
                 return RedirectToAction("NoDataFound", "Error");
             }
 
-       
+
 
             //Fetch Active Resources from master table with all the details Roles,cost etc
             var Query = _ITimesheetEntryService.GetAllDropdown();
@@ -471,15 +471,15 @@ namespace Timesheet.MVC.Controllers
 
             //Fetch Onsite support resources  and assign to datatable dtSupportTeam
             var suppTeamList = from p in dtResourceMaster.AsEnumerable()
-                        where p.Field<string>("s_Value6") == "Support"
-                        && p.Field<string>("s_Value3").ToLower() == "jersey"
-                        orderby p.Field<string>("Text") //order by ResourceName
-                        select new
-                        {
-                            ResourceId = p.Field<string>("Value"),
-                            ResourceName = p.Field<string>("Text")
+                               where p.Field<string>("s_Value6") == "Support"
+                               && p.Field<string>("s_Value3").ToLower() == "jersey"
+                               orderby p.Field<string>("Text") //order by ResourceName
+                               select new
+                               {
+                                   ResourceId = p.Field<string>("Value"),
+                                   ResourceName = p.Field<string>("Text")
 
-                        };
+                               };
             dtSupportTeam = ToDataTable(suppTeamList);
 
             string supportTeamIds = "";
@@ -498,7 +498,7 @@ namespace Timesheet.MVC.Controllers
             string strActualStartDate = string.Empty;
             string strActualEndDate = string.Empty;
             List<SelectListModal> SelectedMonth = Query.Where(x => x.MasterName.ToUpper() == "YEARMASTER" && x.Value == Convert.ToString(modal.MonthId)).ToList();
-            
+
 
             DateTime dtstartDate = DateTime.ParseExact(SelectedMonth[0].s_Value1, "MM/dd/yyyy",CultureInfo.InvariantCulture);
             DateTime dtEndDate = DateTime.ParseExact(SelectedMonth[0].s_Value2, "MM/dd/yyyy", CultureInfo.InvariantCulture);
@@ -509,7 +509,7 @@ namespace Timesheet.MVC.Controllers
 
             strActualStartDate = " "+ stdate + "-" + stmonth + "-" + styear;
 
- 
+
 
             string enddate = dtEndDate.ToString("dd");
             string endmonth = dtEndDate.ToString("MMM");
@@ -520,14 +520,14 @@ namespace Timesheet.MVC.Controllers
             //  var ProjectList =  result.GroupBy(x => x.ProjectId).OrderByDescending(x => x.Max(y => y.ProjectId)).ToList();
             // Group by Project id and then order by Project Name ascending
             var ProjectList = result.GroupBy(x => x.ProjectId).OrderByDescending(x => x.Max(y => y.ProjectName)).Reverse().ToList();
-                 
+
 
             if (ProjectList.Count > 0)
             {
                 using (XLWorkbook wb = new XLWorkbook())
                 {
 
-                 #region ProjectWise Details Worksheets creation | Starts
+                    #region ProjectWise Details Worksheets creation | Starts
 
                     //Looping Each Project from Projects List | Starts here
 
@@ -542,17 +542,17 @@ namespace Timesheet.MVC.Controllers
                         decimal ProjectTotal = 0;
 
                         decimal OnsiteProjectTotal = 0;
-                     
+
 
                         Int16 ProjId = Convert.ToInt16(ProjectList[i].Key);
-                       
+
                         //Fetch only Billable timesheet records under the single Project
                         List<TimesheetSearchResultModal> details = result.Where(x => x.ProjectId == ProjId && x.Billable == "Yes").ToList();
 
                         if (details.Count > 0) // Proceed if there are Billable data
                         {
-                            string ProjectName = details[0].ProjectName.ToString();
-                            string OnsiteManagerName = details[0].OnsiteManagerName != null ? details[0].OnsiteManagerName.ToString() : "" ;
+                            string ProjectName = Convert.ToString(details[0].ProjectName);
+                            string OnsiteManagerName = details[0].OnsiteManagerName != null ? details[0].OnsiteManagerName.ToString() : "";
                             string ProjectType = details[0].ProjectType != null ? details[0].ProjectType.ToString() : "";
 
                             //Fetch distinct resource Locations for the Project to separate the worksheets as Invoice for Offshore and Onsite
@@ -591,7 +591,7 @@ namespace Timesheet.MVC.Controllers
 
                                 dtCRDetails = ToDataTable<TimesheetSearchResultModal>(CRdetails);
 
-                                
+
 
                                 //Join to fetch Resource Role and PerDayCost
                                 var JoinResult = (from cr in dtCRDetails.AsEnumerable()
@@ -677,7 +677,7 @@ namespace Timesheet.MVC.Controllers
                                                 Role = row.Field<string>("Role"),
                                                 CRNumber = row.Field<string>("CRNumber"),
                                                 IsOLSCR = row.Field<string>("IsOLSCR"),
-                                            //Task = row.Field<string>("Task"),
+                                                //Task = row.Field<string>("Task"),
                                                 ActualStartDate = row.Field<DateTime>("ActualStartDate"),
                                                 ActualEndDate = row.Field<DateTime>("ActualEndDate"),
                                                 PerdayCost = row.Field<decimal?>("PerDayCost"),
@@ -726,7 +726,7 @@ namespace Timesheet.MVC.Controllers
 
 
 
-                                
+
                                 DataTable dtOnsiteRecords = new DataTable();
 
                                 dtOnsiteRecords = dtFinalResult.Clone(); // Copy the schema
@@ -752,12 +752,12 @@ namespace Timesheet.MVC.Controllers
                                     }
                                 }
 
-                                
+
                                 // If it is a Onsite Support project and Support Team Members are there in the Worksheet, remove their records
                                 //And add them in Fixed Billing Worksheet. dtOnsiteRecords will have only TnM resources in this case
 
-                                
-                               // if ( (ProjectName.Contains("support") || ProjectName.Contains("Support")) )
+
+                                // if ( (ProjectName.Contains("support") || ProjectName.Contains("Support")) )
                                 if(!string.IsNullOrEmpty(ProjectType) && ProjectType.ToLower() == "support")
                                 {
                                     drSuppProj = dtSupportProjects.NewRow(); //Creating New Row
@@ -765,18 +765,18 @@ namespace Timesheet.MVC.Controllers
                                     drSuppProj["ProjectName"] = ProjectName;
                                     dtSupportProjects.Rows.Add(drSuppProj); //Adding Row
 
-                                    
+
 
                                     if (dtFinalResult.Rows.Count > 0 && dtFinalResult.Rows[0]["Location"].ToString().ToLower() == "onsite")
                                     {
-                                        
+
                                         // DataRow[] drows = dtFinalResult.Select("ResourceId IN (1453,1865,1454,1458,1550,144,1467,1718,1601,148)"); //Onsite Support Team
                                         DataRow[] drows = dtFinalResult.Select("ResourceId IN (" + supportTeamIds + ")"); //select support team rows present in datatable                      
 
-                                        
+
                                         if (drows!=null && drows.Count() > 0)
                                         {
-                                            
+
                                             //Loop the rows , add to FixedCost datatable and remove from the current datatable
                                             foreach(DataRow dr in drows)
                                             {
@@ -797,18 +797,18 @@ namespace Timesheet.MVC.Controllers
                                             }
                                         }
 
-                                       // dtFinalResult.AcceptChanges();
+                                        // dtFinalResult.AcceptChanges();
                                     }
 
                                     if (dtOnsiteRecords.Rows.Count > 0)
                                     {
-                                        
+
                                         // DataRow[] drows = dtOnsiteRecords.Select("ResourceId IN (1453,1865,1454,1458,1550,144,1467,1718,1601,148)"); //Onsite Support Team
                                         DataRow[] drows = dtOnsiteRecords.Select("ResourceId IN (" + supportTeamIds + ")"); //select support team rows present in datatable                      
 
                                         if (drows != null && drows.Count() > 0)
                                         {
-                                           
+
                                             //Loop the rows , add to FixedCost datatable and remove from the current datatable
 
                                             foreach (DataRow dr in drows)
@@ -830,7 +830,7 @@ namespace Timesheet.MVC.Controllers
                                             }
                                         }
 
-                                       // dtOnsiteRecords.AcceptChanges();
+                                        // dtOnsiteRecords.AcceptChanges();
                                     }
                                 } // End of Support project If statement
 
@@ -841,20 +841,20 @@ namespace Timesheet.MVC.Controllers
 
 
                                 //dtFinalResult can have either Offshore Or Onsite records . means All timesheet records are from Offshore or from Onsite
-                                if (dtFinalResult.Rows.Count > 0) 
-                                                                 
+                                if (dtFinalResult.Rows.Count > 0)
+
                                     dsProjectDetails.Tables.Add(dtFinalResult);
 
                                 //dtOnsiteRecords will have Only Onsite records which are filtered from dtFinalResult, when there are both Offshore and Onsite records
-                                if (dtOnsiteRecords.Rows.Count > 0)                              
+                                if (dtOnsiteRecords.Rows.Count > 0)
 
-                                    dsOnsiteCRDetails.Tables.Add(dtOnsiteRecords);                                
-                               
+                                    dsOnsiteCRDetails.Tables.Add(dtOnsiteRecords);
+
 
 
                             } // End of CRList looping
 
-                                                                                   
+
 
 
                             //Binding All the datatables which are grouped by CR ID will be inserted to worksheet
@@ -863,24 +863,23 @@ namespace Timesheet.MVC.Controllers
                             {
                                 drSummary = dtSummary.NewRow(); //Creating New Row for Summary Table
                                 SlNo = SlNo + 1;
-                               // drSummary["Sr. No."] = SlNo;
+                                // drSummary["Sr. No."] = SlNo;
                                 drSummary["Location"] = offshoreOnshoreFlag == " Onsite" ? "Onsite" : "Offshore";
                                 drSummary["Project"] = ProjectName;
                                 drSummary["Invoice Manager"] = OnsiteManagerName;
-
-
+                                
                                 // name the worksheet as the first 6 digits from the Project Name and prefixed with an underscore as it was throwing error
-                                if (ProjectName.ToLower() != "other")
+                                if (ProjectName?.ToLower() != "other")
                                     worksheetName = "_" + ProjectName.Substring(0, 7) + offshoreOnshoreFlag;
                                 else
                                     worksheetName = ProjectName + offshoreOnshoreFlag;
 
-                               
+
                                 var ws = wb.Worksheets.Add(worksheetName); // Name of the  worksheet / Tab               
                                 ws.Range(1, 1, 1, 10).Value = ProjectName + " " + "Invoice for the month of " + SelectedMonth[0].Text + " (Project Manager: " + OnsiteManagerName + ")"; //Name of the Heading
                                 ws.Range(1, 1, 1, 10).Merge().AddToNamed("Titles");
 
-                              
+
 
                                 int rowcounter = 4;
                                 string CRName = string.Empty;
@@ -889,14 +888,14 @@ namespace Timesheet.MVC.Controllers
                                 {
                                     if (dsProjectDetails.Tables[k].Rows.Count > 0)
                                     {
-                                       
+
 
                                         CRName = dsProjectDetails.Tables[k].Rows[0]["CR/IM Number"].ToString();
 
                                         // ws.Cell(rowcounter, 1).InsertTable(dsProjectDetails.Tables[k]);
                                         ws.Cell(rowcounter, 1).InsertData(dsProjectDetails.Tables[k]);
 
-                                                                   
+
 
                                         // Create Headers  and apply styling
                                         string[] columnNames = (from dc in dsProjectDetails.Tables[0].Columns.Cast<DataColumn>()
@@ -906,17 +905,17 @@ namespace Timesheet.MVC.Controllers
                                         for (int c = 0; c < columnNames.Length; c++)
                                         {
                                             var columnNumber = c + 1;
-                                            ws.Cell(3, columnNumber).Value = columnNames[c];                                          
+                                            ws.Cell(3, columnNumber).Value = columnNames[c];
                                             ws.Cell(3, columnNumber).Style.Fill.SetBackgroundColor(XLColor.FromHtml("#bfbfc2")); // Column Header Gray Color
                                             ws.Cell(3, columnNumber).Style.Font.Bold = true;
                                             ws.Cell(3, columnNumber).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                                             ws.Cell(3, columnNumber).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-                                            if (columnNumber == 6)                                            
+                                            if (columnNumber == 6)
                                                 ws.Column(6).Style.DateFormat.Format = "dd-mmm-yy";
                                             if (columnNumber == 7)
                                                 ws.Column(7).Style.DateFormat.Format = "dd-mmm-yy";
-                                          
+
 
                                             if (columnNumber == 8)
                                                 ws.Column(8).Style.NumberFormat.Format = "0.00";
@@ -946,12 +945,12 @@ namespace Timesheet.MVC.Controllers
                                         ws.Cell(rowcounter + (dsProjectDetails.Tables[k].Rows.Count), 10).Style.Fill.SetBackgroundColor(XLColor.FromHtml("#ffc000")); //(XLColor.Orange);
 
 
-                                        if(k == (dsProjectDetails.Tables.Count -1)) //Show project Total Cost after Last Table
+                                        if (k == (dsProjectDetails.Tables.Count - 1)) //Show project Total Cost after Last Table
                                         {
                                             if (offshoreOnshoreFlag == " Onsite")
-                                                ws.Cell(rowcounter + (dsProjectDetails.Tables[k].Rows.Count) + 3, 9).Value = "Onsite Total"; 
+                                                ws.Cell(rowcounter + (dsProjectDetails.Tables[k].Rows.Count) + 3, 9).Value = "Onsite Total";
                                             else
-                                                ws.Cell(rowcounter + (dsProjectDetails.Tables[k].Rows.Count) + 3, 9).Value = "Offshore Total"; 
+                                                ws.Cell(rowcounter + (dsProjectDetails.Tables[k].Rows.Count) + 3, 9).Value = "Offshore Total";
 
 
                                             ws.Cell(rowcounter + (dsProjectDetails.Tables[k].Rows.Count) + 3, 10).Value = "\u00A3" + ProjectTotal;
@@ -964,7 +963,7 @@ namespace Timesheet.MVC.Controllers
                                             ws.Range(1, 1, rowcounter + (dsProjectDetails.Tables[k].Rows.Count) + 3, 10).Style.Border.InsideBorder = XLBorderStyleValues.Thin;
                                             ws.Range(rowcounter + (dsProjectDetails.Tables[k].Rows.Count) + 3,1, rowcounter + (dsProjectDetails.Tables[k].Rows.Count) + 3,10).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                                         }
-                                           
+
 
 
                                         //setting the rowcounter where the next datatable will be inserted
@@ -987,7 +986,7 @@ namespace Timesheet.MVC.Controllers
                             {
                                 drSummary = dtSummary.NewRow(); //Creating New Row for Summary Table
                                 SlNo = SlNo + 1;
-                              //  drSummary["Sr. No."] = SlNo;
+                                //  drSummary["Sr. No."] = SlNo;
                                 drSummary["Location"] = "Onsite";
                                 drSummary["Project"] = ProjectName;
                                 drSummary["Invoice Manager"] = OnsiteManagerName;
@@ -998,7 +997,7 @@ namespace Timesheet.MVC.Controllers
                                 else
                                     worksheetName_Onsite = ProjectName + " Onsite";
 
-                                
+
                                 var ws = wb.Worksheets.Add(worksheetName_Onsite); // Name of the  worksheet / Tab               
                                 ws.Range(1, 1, 1, 10).Value = ProjectName + " " + "Invoice for the month of " + SelectedMonth[0].Text + " (Project Manager: " + OnsiteManagerName + ")"; //Name of the Heading
                                 ws.Range(1, 1, 1, 10).Merge().AddToNamed("Titles");
@@ -1013,13 +1012,13 @@ namespace Timesheet.MVC.Controllers
                                 {
                                     if (dsOnsiteCRDetails.Tables[k].Rows.Count > 0)
                                     {
-                                       
+
 
                                         CRName = dsOnsiteCRDetails.Tables[k].Rows[0]["CR/IM Number"].ToString();
 
-                                       // ws.Cell(rowcounter, 1).InsertTable(dsOnsiteCRDetails.Tables[k]);
+                                        // ws.Cell(rowcounter, 1).InsertTable(dsOnsiteCRDetails.Tables[k]);
                                         ws.Cell(rowcounter, 1).InsertData(dsOnsiteCRDetails.Tables[k]);
-                                       
+
 
                                         // Create Headers  and apply styling
                                         string[] columnNames = (from dc in dsOnsiteCRDetails.Tables[0].Columns.Cast<DataColumn>()
@@ -1029,17 +1028,17 @@ namespace Timesheet.MVC.Controllers
                                         for (int c = 0; c < columnNames.Length; c++)
                                         {
                                             var columnNumber = c + 1;
-                                            ws.Cell(3, columnNumber).Value = columnNames[c];                                            
+                                            ws.Cell(3, columnNumber).Value = columnNames[c];
                                             ws.Cell(3, columnNumber).Style.Fill.SetBackgroundColor(XLColor.FromHtml("#bfbfc2")); // Column Header Gray Color
                                             ws.Cell(3, columnNumber).Style.Font.Bold=true;
                                             ws.Cell(3, columnNumber).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                                             ws.Cell(3, columnNumber).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-                                            if (columnNumber == 6)                                            
+                                            if (columnNumber == 6)
                                                 ws.Column(6).Style.DateFormat.Format = "dd-mmm-yy";
                                             if (columnNumber == 7)
                                                 ws.Column(7).Style.DateFormat.Format = "dd-mmm-yy";
-                                      
+
                                             if (columnNumber == 8)
                                                 ws.Column(8).Style.NumberFormat.Format = "0.00";
                                             if (columnNumber == 9)
@@ -1048,19 +1047,19 @@ namespace Timesheet.MVC.Controllers
                                                 ws.Column(10).Style.NumberFormat.Format = "\u00A30.00"; //PoundSymbol 0.00
 
                                         }
-                                        
+
 
                                         Decimal TotalCRCost = Convert.ToDecimal(dsOnsiteCRDetails.Tables[k].Compute("SUM([Total])", string.Empty));
                                         TotalCRCost = Math.Round(TotalCRCost, 2, MidpointRounding.AwayFromZero);
 
                                         OnsiteProjectTotal = Math.Round(TotalCRCost + OnsiteProjectTotal, 2, MidpointRounding.AwayFromZero); // Adding TotalCRCost to find OnsiteProjectTotal
 
-                            
+
                                         //Show Total CR cost in Orange Color Row
                                         ws.Range(rowcounter + (dsOnsiteCRDetails.Tables[k].Rows.Count), 1, rowcounter + (dsOnsiteCRDetails.Tables[k].Rows.Count), 1).Value = "Total " + CRName; // + " Cost is : \u00A3" + TotalCRCost;
                                         ws.Range(rowcounter + (dsOnsiteCRDetails.Tables[k].Rows.Count), 1, rowcounter + (dsOnsiteCRDetails.Tables[k].Rows.Count), 9).Merge().AddToNamed("TotalCostStyle");
 
-                                        ws.Cell(rowcounter + (dsOnsiteCRDetails.Tables[k].Rows.Count), 10).Value = "\u00A3" + TotalCRCost;                                        
+                                        ws.Cell(rowcounter + (dsOnsiteCRDetails.Tables[k].Rows.Count), 10).Value = "\u00A3" + TotalCRCost;
                                         ws.Cell(rowcounter + (dsOnsiteCRDetails.Tables[k].Rows.Count), 10).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
                                         ws.Cell(rowcounter + (dsOnsiteCRDetails.Tables[k].Rows.Count), 10).Style.Fill.SetBackgroundColor(XLColor.FromHtml("#ffc000"));  //(XLColor.Orange);
 
@@ -1095,7 +1094,7 @@ namespace Timesheet.MVC.Controllers
 
 
                             // ws.Columns().AdjustToContents();
-                           // wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                            // wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                             // wb.Style.Font.Bold = true;
                             wb.Style.Font.FontName = "Arial";
                             wb.Style.Font.FontSize = 10;
@@ -1110,9 +1109,9 @@ namespace Timesheet.MVC.Controllers
 
                     #region Creating Summary WorkSheet | Starts
 
-                  
+
                     if (dtSummary.Rows.Count > 0)
-                    { 
+                    {
                         int RowCount = dtSummary.Rows.Count;
 
                         //Adding last 2 rows in Summary Table which are always static
@@ -1123,14 +1122,14 @@ namespace Timesheet.MVC.Controllers
                             SlNo = i == 0 ? RowCount + 1 : RowCount + 2;
                             //drSummary["Sr. No."] = SlNo;
                             drSummary["Location"] = "Onsite";
-                            drSummary["Project"] = i == 0 ? "Fixed billing onsite support" : "Fixed billing onsite support (Credit Note)";                            
+                            drSummary["Project"] = i == 0 ? "Fixed billing onsite support" : "Fixed billing onsite support (Credit Note)";
                             drSummary["Total"] = i == 0 ? "74500" : "-30000"; // 74500Pound -30000 Pound
                             drSummary["Invoice Manager"] = "Damon O";
                             dtSummary.Rows.Add(drSummary); //Adding Row
                         }
 
-                        dtSummary.DefaultView.Sort = "[Location] ASC";                        
-                        dtSummary.AcceptChanges();                     
+                        dtSummary.DefaultView.Sort = "[Location] ASC";
+                        dtSummary.AcceptChanges();
 
                         dtSummary = dtSummary.DefaultView.ToTable();
 
@@ -1141,7 +1140,7 @@ namespace Timesheet.MVC.Controllers
                             dtSummary.Rows[i][0] = i + 1;
                         }
 
-                        
+
 
                         summaryWorksheetName = "Summary Sheet";
                         var ws = wb.Worksheets.Add(summaryWorksheetName, 0); // Name of the  worksheet / Tab               
@@ -1166,7 +1165,7 @@ namespace Timesheet.MVC.Controllers
                                 ws.Column(4).Style.NumberFormat.Format = "\u00A30.00"; //PoundSymbol 0.00
                         }
 
-                    
+
 
                         ws.Cell(4, 1).InsertData(dtSummary);
 
@@ -1218,10 +1217,10 @@ namespace Timesheet.MVC.Controllers
 
                         // Create Column Name Headers  and apply styling In Pivot Table
                         string[] columnNamesInPivot = (from dc in dtPivot.Columns.Cast<DataColumn>()
-                                                         select dc.ColumnName).ToArray();
+                                                       select dc.ColumnName).ToArray();
 
                         for (int c = 0; c < columnNamesInPivot.Length; c++)
-                        {                           
+                        {
                             ws.Cell(3, c + 8).Value = columnNamesInPivot[c];
                             ws.Range(3, 8, 3, 9).AddToNamed("ColumnNameStyleInSummary");
                         }
@@ -1235,7 +1234,7 @@ namespace Timesheet.MVC.Controllers
 
                         ws.Range(3, 8, 6, 9).Style.Border.InsideBorder = XLBorderStyleValues.Thin;
                         ws.Range(3, 8, 6, 9).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                 
+
                         ws.Columns().AdjustToContents();
                     }
 
@@ -1252,7 +1251,7 @@ namespace Timesheet.MVC.Controllers
                         //Get Distinct Support Projects from datatable                    
                         dtSupportProjects = dtSupportProjects.DefaultView.ToTable(true);
 
-                      
+
 
                         dtFixedCostBilling.DefaultView.Sort = "[ResourceName] ASC";
                         dtFixedCostBilling.AcceptChanges();
@@ -1270,18 +1269,18 @@ namespace Timesheet.MVC.Controllers
                                 ProjectName = r["ProjectName"]
                             })
                             .Select(g =>
-                             {
-                                 var row = dtFixedCostBilling.NewRow();
+                            {
+                                var row = dtFixedCostBilling.NewRow();
 
-                                 row["ResourceId"] = g.Key.ResourceId;
-                                 row["ResourceName"] = g.Key.ResourceName;
-                                 row["ProjectID"] = g.Key.ProjectID;
-                                 row["ProjectName"] = g.Key.ProjectName;
-                                 row["WorkingDays"] = g.Sum(r => r.Field<decimal?>("WorkingDays"));
+                                row["ResourceId"] = g.Key.ResourceId;
+                                row["ResourceName"] = g.Key.ResourceName;
+                                row["ProjectID"] = g.Key.ProjectID;
+                                row["ProjectName"] = g.Key.ProjectName;
+                                row["WorkingDays"] = g.Sum(r => r.Field<decimal?>("WorkingDays"));
 
-                                 return row;
+                                return row;
 
-                             }).CopyToDataTable();
+                            }).CopyToDataTable();
                         }
 
 
@@ -1518,7 +1517,7 @@ namespace Timesheet.MVC.Controllers
                     wsCN.Cell(4, 5).Value = "Fixed billing credit note";
                     wsCN.Cell(4, 10).Value = "-30000";
 
-                  
+
 
                     //Assign Border to the Content
                     wsCN.Range(2, 1, 4, 10).Style.Border.InsideBorder = XLBorderStyleValues.Thin;
@@ -1526,7 +1525,7 @@ namespace Timesheet.MVC.Controllers
                     //
 
                     //Show that Orange Row
-                    wsCN.Range(5, 1, 5, 1).Value = "Fixed billing credit note"; 
+                    wsCN.Range(5, 1, 5, 1).Value = "Fixed billing credit note";
                     wsCN.Range(5, 1, 5, 9).Merge().AddToNamed("TotalCostStyle");
 
                     wsCN.Cell(5, 10).Value = "-30000";
@@ -1549,7 +1548,7 @@ namespace Timesheet.MVC.Controllers
                     #endregion
 
 
-                   // int totalWorksheetsCount = wb.Worksheets.Count();
+                    // int totalWorksheetsCount = wb.Worksheets.Count();
 
 
                     //In the Final report,after Fixed Billing Onsite Credit Note worksheet,
@@ -1557,17 +1556,17 @@ namespace Timesheet.MVC.Controllers
 
                     int index = 2; // because Onsite details sheet will start from 4th Position index=3
                     foreach (IXLWorksheet worksheet in wb.Worksheets)
-                    {                       
-                        
-                        if (worksheet.Name.ToString().Contains("Onsite") && 
+                    {
+
+                        if (worksheet.Name.ToString().Contains("Onsite") &&
                             worksheet.Name.ToString() != "Fixed Billing Onsite supp1." &&
                             worksheet.Name.ToString() != "FixedBilling Onsite Credit Note")
                         {
-                            index++;                          
+                            index++;
                             wb.Worksheet(worksheet.Name.ToString()).Position = index;
                         }
-                       
-                                                          
+
+
                     }
 
                     // Prepare the style for the Header title
@@ -1596,7 +1595,7 @@ namespace Timesheet.MVC.Controllers
                     columnNameStyle_Summary.Font.Bold = true;
                     columnNameStyle_Summary.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     columnNameStyle_Summary.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                   
+
 
                     // Format all titles in one shot
                     wb.NamedRanges.NamedRange("ColumnNameStyleInSummary").Ranges.Style = columnNameStyle_Summary;
@@ -1624,7 +1623,7 @@ namespace Timesheet.MVC.Controllers
                     TotalCostStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
                     TotalCostStyle.Fill.BackgroundColor = XLColor.FromHtml("#ffc000") ;//XLColor.Orange;
 
-                    wb.NamedRanges.NamedRange("TotalCostStyle").Ranges.Style = TotalCostStyle;                  
+                    wb.NamedRanges.NamedRange("TotalCostStyle").Ranges.Style = TotalCostStyle;
 
 
 
@@ -1635,12 +1634,12 @@ namespace Timesheet.MVC.Controllers
                         MyMemoryStream.Position = 0;
                     }
                 }
-                               
-               
+
+
             }
 
             return File(MyMemoryStream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Invoice_" + SelectedMonth[0].Text + ".xlsx");
-                     
+
         }
 
 
@@ -1650,8 +1649,8 @@ namespace Timesheet.MVC.Controllers
             var m= month.Replace(today.Year.ToString(), "");
             m= month.Replace("-", "");
             m= month.ToLower().Trim();
-            int iMonthNo = Convert.ToDateTime("01-" + m + "-" + today.Year).Month; 
- 
+            int iMonthNo = Convert.ToDateTime("01-" + m + "-" + today.Year).Month;
+
             int daysInMonth = DateTime.DaysInMonth(today.Year, iMonthNo);
             DateTime firstOfMonth = new DateTime(today.Year, iMonthNo, 1);
             int firstDayOfMonth = (int)firstOfMonth.DayOfWeek;
@@ -1678,15 +1677,15 @@ namespace Timesheet.MVC.Controllers
         public JsonResult GetProjectList()
         {
 
-                SelectList items = (SelectList)TempData.Peek("Projects");
-                return Json(items, JsonRequestBehavior.AllowGet);      
+            SelectList items = (SelectList)TempData.Peek("Projects");
+            return Json(items, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetActivityList()
         {
 
-                SelectList items = (SelectList)TempData.Peek("ActivityList");
-                return Json(items, JsonRequestBehavior.AllowGet);      
+            SelectList items = (SelectList)TempData.Peek("ActivityList");
+            return Json(items, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetCrList()
@@ -1696,10 +1695,10 @@ namespace Timesheet.MVC.Controllers
             return Json(items, JsonRequestBehavior.AllowGet);
         }
 
-         
+
         #endregion
         #region private methods
-      
+
         private void FillDropdowns()
         {
             var Query = _ITimesheetEntryService.GetAllDropdown();
@@ -1736,41 +1735,41 @@ namespace Timesheet.MVC.Controllers
 
             }
 
-                ViewBag.MonthLst = new SelectList(
+            ViewBag.MonthLst = new SelectList(
                              Query.Where(x => x.MasterName.ToUpper() == "YEARMASTER" ).Select(x => new SelectListItem()
-                             {
-                                 Text = x.Text,
-                                 Value = x.Value
+                         {
+                             Text = x.Text,
+                             Value = x.Value
                              }).OrderBy(n=>n.Value).ToList(), "Value", "Text");
 
-       
-           
-           DateTime today = DateTime.Now;
-           //extract the month
-           int daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
-           DateTime firstOfMonth = new DateTime(today.Year, today.Month, 1);
-           //days of week starts by default as Sunday = 0
-           int firstDayOfMonth = (int)firstOfMonth.DayOfWeek;
-           int weeksInMonth = (int)Math.Ceiling((firstDayOfMonth + daysInMonth) / 7.0);
-           List<SelectListItem> items = new List<SelectListItem>();
 
-           items.Add(new SelectListItem()
-           {
-               Text = "All",
-               Value = "0"
-           });
+
+            DateTime today = DateTime.Now;
+            //extract the month
+            int daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
+            DateTime firstOfMonth = new DateTime(today.Year, today.Month, 1);
+            //days of week starts by default as Sunday = 0
+            int firstDayOfMonth = (int)firstOfMonth.DayOfWeek;
+            int weeksInMonth = (int)Math.Ceiling((firstDayOfMonth + daysInMonth) / 7.0);
+            List<SelectListItem> items = new List<SelectListItem>();
+
+            items.Add(new SelectListItem()
+            {
+                Text = "All",
+                Value = "0"
+            });
             for(int i=1;i <= weeksInMonth;i++)
             {
                 items.Add(new SelectListItem()
-                    {
+                {
                         Text = "Week "+ i,
-                        Value = i.ToString()
-                    });
+                    Value = i.ToString()
+                });
             }
 
             ViewBag.WeekIdLst = new SelectList(items, "Value", "Text");
 
-           //Keep Project Names in TempData
+            //Keep Project Names in TempData
 
             TempData["Projects"] = new SelectList(
                                        Query.Where(x => x.MasterName.ToUpper() == "PROJECT").Select(x => new SelectListItem()

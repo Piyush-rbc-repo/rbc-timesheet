@@ -1,41 +1,40 @@
-﻿using System;
+﻿using ClosedXML.Excel;
+using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
-using Timesheet.MVC.Models;
-using Timesheet.Modal;
-using System.Web.UI.WebControls;
-using System.Security.Principal;
-using System.DirectoryServices.AccountManagement;
-using System.IO;
 using System.Web.UI;
-using System.Globalization;
-using System.Data;
-using System.Reflection;
-using ClosedXML.Excel;
+using System.Web.UI.WebControls;
+using Timesheet.Modal;
+using Timesheet.MVC.Filters;
 
 namespace Timesheet.MVC.Controllers
 {
     [Authorize]
+    [AuthorizeRole(Timesheet.MVC.Filters.UserRole.Default)]
     public class TimesheetController : Controller
     {
         #region Constructor and Global Variable
         private Timesheet.Service.ServiceInterface.ITimesheetEntryService _ITimesheetEntryService;
         private Timesheet.Service.ServiceInterface.IMasterService _IMasterService;
-        
-        
+
+
         public TimesheetController()
         {
             _ITimesheetEntryService = new Timesheet.Service.ServiceLibrary.TimesheetEntryService();
             _IMasterService = new Timesheet.Service.ServiceLibrary.MasterService();
-       }
+        }
 
         #endregion
         #region public Action Method
-        
-        
-        
+
+
+
         public ActionResult Index()
         {
             TimesheetViwmodal viewmodal = new TimesheetViwmodal();
@@ -83,10 +82,10 @@ namespace Timesheet.MVC.Controllers
                 return new HttpStatusCodeResult(400, "Please fill all the required information!!!");
             }
 
-            
+
         }
         public JsonResult Search(TimesheetSearchModal model)
-            {
+        {
             if (model.Resource == null)
             {
                 model.Resource = (int)TempData.Peek("resourceid");
@@ -114,7 +113,7 @@ namespace Timesheet.MVC.Controllers
         {
             //   model.Resource = (int)TempData.Peek("resourceid");
             List<TimesheetSearchResultModal> result = _ITimesheetEntryService.Search(model);
-            
+
 
             if (result.Count == 0)
             {
@@ -128,7 +127,7 @@ namespace Timesheet.MVC.Controllers
             gridview.Columns.Add(new BoundField() { DataField = "ActivityDate", HeaderText = "Date" });
             gridview.Columns.Add(new BoundField() { DataField = "ResourceName", HeaderText = "Resource Name" });
             gridview.Columns.Add(new BoundField() { DataField = "ProjectName", HeaderText = "Project" });
-            gridview.Columns.Add(new BoundField() { DataField = "CrNumber", HeaderText = "CR Number" });
+            gridview.Columns.Add(new BoundField() { DataField = "CrNumber", HeaderText = "CR Number" });   
             gridview.Columns.Add(new BoundField() { DataField = "Activity", HeaderText = "Activity" });
             gridview.Columns.Add(new BoundField() { DataField = "SubActivity", HeaderText = "Sub Activity" });
             gridview.Columns.Add(new BoundField() { DataField = "ActualEfforts", HeaderText = "Efforts (Hrs)" });
@@ -194,7 +193,7 @@ namespace Timesheet.MVC.Controllers
 
             // model.Resource = (int)TempData.Peek("resourceid");
             // model.Resource = model.ResourceId;
-           
+
             List<TimesheetSearchResultModal> result = _ITimesheetEntryService.Search(model);
 
 
@@ -226,9 +225,9 @@ namespace Timesheet.MVC.Controllers
             dtTimesheet.Columns.Remove("ManagerId");
             dtTimesheet.Columns.Remove("RejectionReason");
             dtTimesheet.Columns.Remove("ActualEfforts");
-            dtTimesheet.Columns.Remove("VisibleToUser");            
+            dtTimesheet.Columns.Remove("VisibleToUser");
             dtTimesheet.Columns.Remove("ActivityId");
-            
+
             dtTimesheet.Columns.Remove("CrLongName");
             dtTimesheet.Columns.Remove("OnsiteManagerName");
             dtTimesheet.Columns.Remove("ProjectType");
@@ -262,7 +261,7 @@ namespace Timesheet.MVC.Controllers
 
 
             string worksheetName = (model.Resource == null ? "Full" : result[0].ResourceName.ToString()).Replace(' ', '_');
-                //+ "_" + month + "_" + dt.ToString("yyyy");
+            //+ "_" + month + "_" + dt.ToString("yyyy");
 
 
             using (XLWorkbook wb = new XLWorkbook())
@@ -289,6 +288,31 @@ namespace Timesheet.MVC.Controllers
                 //Insert timesheet data
                 wsTS.Cell(2, 1).InsertData(dtTimesheet);
 
+                foreach (DataRow row in dtTimesheet.Rows)
+                {
+                    // Assuming "Date" is the name of the column containing dates
+                    if (row["Date"] != DBNull.Value)
+                    {
+                        DateTime dateValue = Convert.ToDateTime(row["Date"]);
+
+
+                        // Get the day of the week for the date
+                        string dayOfWeek = dateValue.ToString("dddd");
+
+                        // Check if the day is Sunday or Saturday
+                        if (dayOfWeek == "Sunday" || dayOfWeek == "Saturday")
+                        {
+                            // Add background color in yellow and change font color to red for specific columns
+                            for (int columnIndex = 1; columnIndex <= dtTimesheet.Columns.Count; columnIndex++)
+                            {
+                                var excelCell = wsTS.Cell(row.Table.Rows.IndexOf(row) + 2, columnIndex); // Adding 2 because Excel rows are 1-based
+                                excelCell.Style.Fill.BackgroundColor = XLColor.Yellow;
+                                excelCell.Style.Font.FontColor = XLColor.Red;
+                            }
+                        }
+                    }
+                } 
+
                 wsTS.Row(1).AdjustToContents(30.00, 30.00); // To give height to the Headers
                 wsTS.Columns().AdjustToContents();
 
@@ -313,13 +337,11 @@ namespace Timesheet.MVC.Controllers
 
 
         }
-
+        
         public ActionResult DownloadDefaulterList(string FromDate, string ToDate)
         {
-         
             MemoryStream MyMemoryStream = null;
 
-            
             List<TimesheetDefaulterListModal> result = _ITimesheetEntryService.GetDefaulterList(FromDate, ToDate);
 
             if (result.Count == 0)
@@ -327,45 +349,31 @@ namespace Timesheet.MVC.Controllers
                 return RedirectToAction("NoDataFound", "Error");
             }
 
-
             string month = FromDate.Split('/')[1].ToString();
+            //string NewFromDate; // This variable is declared but not assigned in the provided code
 
-            string NewFromDate;
-
-            //This is to append 0 in the month. When you don't select any date from start date calendar the date was coming as 01/9/2021 (an example) . 0 is missing in leftside of 9
-            if (month.Length < 2)
-                NewFromDate = FromDate.Split('/')[0].ToString() + "/" + (string.Format("{0}{1}", "0", month ))+ "/" + FromDate.Split('/')[2].ToString();
-
-            else
-                NewFromDate = FromDate;
-
-            DateTime dt = DateTime.ParseExact(NewFromDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
-
+            // Assuming NewFromDate has been assigned a valid value
+            DateTime dt = DateTime.ParseExact(FromDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
             string monthName = dt.ToString("MMMM");
 
+            // Convert the list of TimesheetDefaulterListModal to a DataTable
             DataTable dtDefaulter = ToDataTable<TimesheetDefaulterListModal>(result);
 
-            dtDefaulter.Columns.Remove("ResourceID");            
+            dtDefaulter.Columns.Remove("ResourceID");
 
             using (XLWorkbook wb = new XLWorkbook())
             {
-                var ws = wb.Worksheets.Add("DefaulterList_" + monthName); // Name of the  worksheet /Tab               
-                ws.Range(1, 1, 1, 2).Value = "Defaulter List"; //Name of the Heading
-                ws.Range(1, 1, 1, 2).Merge().AddToNamed("Titles");
-               
+                var ws = wb.Worksheets.Add("DefaulterList_" + monthName);
+                ws.Range(1, 1, 1, 3).Value = "Defaulter List"; // Updated for the new column
+                ws.Range(1, 1, 1, 3).Merge().AddToNamed("Titles"); // Updated for the new column
                 ws.Cell(2, 1).InsertTable(dtDefaulter);
 
-                // Prepare the style for the titles
                 var titlesStyle = wb.Style;
                 titlesStyle.Font.Bold = true;
                 titlesStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 titlesStyle.Fill.BackgroundColor = XLColor.Cyan;
 
-
-                // Format all titles in one shot
                 wb.NamedRanges.NamedRange("Titles").Ranges.Style = titlesStyle;
-
-                // wb.Worksheets.Add(dtDefaulter, "DefaulterList_"+ monthName);
 
                 wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 wb.Style.Font.Bold = true;
@@ -377,18 +385,28 @@ namespace Timesheet.MVC.Controllers
                 }
             }
 
-
-
-            return File(MyMemoryStream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "DefaulterList_"+ monthName + ".xlsx");
-
+            return File(
+                MyMemoryStream.ToArray(),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "DefaulterList_" + monthName + ".xlsx"
+            );
         }
+
+
+
+
+
+
+
+
 
         public JsonResult SubmitRecords(string i, string partialSubmit)
         {
             TimesheetSubmitValidationResult result = _ITimesheetEntryService.DeleteSubmit(i, false, true, (int)TempData.Peek("resourceid"), Convert.ToBoolean(partialSubmit));
-            return new JsonResult(){
-                Data=new{result=result.SaveResult,CauseList=result.timesheetSubmitValidationOutput,Idarray=i,type='S'},
-                JsonRequestBehavior=JsonRequestBehavior.AllowGet
+            return new JsonResult()
+            {
+                Data = new { result = result.SaveResult, CauseList = result.timesheetSubmitValidationOutput, Idarray = i, type = 'S' },
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
 
             };
 
@@ -404,7 +422,7 @@ namespace Timesheet.MVC.Controllers
             };
 
         }
-        
+
         #endregion
         #region public FileUpload Method
 
@@ -427,7 +445,7 @@ namespace Timesheet.MVC.Controllers
         {
             if(TempData.Peek("resourceid")==null)
             {
-                
+
                 return new JsonResult()
                 {
 
@@ -461,8 +479,8 @@ namespace Timesheet.MVC.Controllers
             else
             {
                 int userid =(int)TempData.Peek("resourceid");
-               var result = _ITimesheetEntryService.UploadCsv(file, userid, overWriteExistsing);
-              
+                var result = _ITimesheetEntryService.UploadCsv(file, userid, overWriteExistsing);
+
                 return new JsonResult()
                 {
 
@@ -475,7 +493,7 @@ namespace Timesheet.MVC.Controllers
         }
         public ActionResult UploadExcel(HttpPostedFileBase file,bool overWriteExistsing)
         {
-            
+
             if (TempData.Peek("resourceid") == null)
             {
 
@@ -557,10 +575,10 @@ namespace Timesheet.MVC.Controllers
                 catch (Exception ex)
                 {
                     return new JsonResult()
-                               {
+                    {
 
-                                   Data = new { pn_Error = true, ps_Msg = "your request can not be processed this moment. <br> Exception :  " + ex.Message }
-                               };
+                        Data = new { pn_Error = true, ps_Msg = "your request can not be processed this moment. <br> Exception :  " + ex.Message }
+                    };
 
 
                 }
@@ -573,14 +591,14 @@ namespace Timesheet.MVC.Controllers
         {
 
             return new SelectList(_IMasterService.GetById(6).Where(x => (int)x.n_RefId == projectid).Select(x => new SelectListItem()
-                                      {
-                                          Text = x.s_MasterCode,
-                                          Value = x.n_Id.ToString()
+            {
+                Text = x.s_MasterCode,
+                Value = x.n_Id.ToString()
 
 
-                                      }).ToList(), "Value", "Text");
-                                      
-           
+            }).ToList(), "Value", "Text");
+
+
 
         }
 
@@ -633,23 +651,12 @@ namespace Timesheet.MVC.Controllers
             var Query = _ITimesheetEntryService.GetAllDropdown();
             ViewBag.ActivityList = new SelectList(
                                                    Query.Where(x => x.MasterName.ToUpper() == "ACTIVITY").Select(x => new SelectListItem()
-                                                               {
-                                                                   Text = x.Text,
-                                                                   Value = x.Value
+                                                   {
+                                                       Text = x.Text,
+                                                       Value = x.Value
 
 
-                                                               }).ToList(), "Value", "Text");
-
-            // Added by Piyush to fetch data for dropdown in timesheet
-
-            ViewBag.TaskList = new SelectList(
-                            Query.Where(x => x.MasterName.ToUpper() == "TASKS").Select(x => new SelectListItem()
-                            {
-                                Text = x.Text,   
-                                Value = x.Value
-                            }).ToList(), "value", "Text");
-
-
+                                                   }).ToList(), "Value", "Text");
             ViewBag.ProjectList = new SelectList(
                                       Query.Where(x => x.MasterName.ToUpper() == "PROJECT").Select(x => new SelectListItem()
                                       {
@@ -677,12 +684,12 @@ namespace Timesheet.MVC.Controllers
                               {
                                   Text = x.Text,
                                   Value = x.Value
-                                  
+
 
                               }).ToList(), "Value", "Text");
 
             //commented code to fix issue 
-         //   TempData["resourceid"]=Convert.ToInt32(Query.Where(x => x.MasterName.ToUpper() == "RESOURCE" && x.Text.ToLower() == Session["IUserName"].ToString().ToLower()).Select(x => x.Value).FirstOrDefault());
+            //   TempData["resourceid"]=Convert.ToInt32(Query.Where(x => x.MasterName.ToUpper() == "RESOURCE" && x.Text.ToLower() == Session["IUserName"].ToString().ToLower()).Select(x => x.Value).FirstOrDefault());
 
             // new code to handle resource id - Mitesh Patil
             int resourceid = Convert.ToInt32(Query.Where(x => x.MasterName.ToUpper() == "RESOURCE" && x.Value.ToLower() == Session["IUsecode"].ToString().ToLower()).Select(x => x.Value).FirstOrDefault());
@@ -704,11 +711,11 @@ namespace Timesheet.MVC.Controllers
                                   Selected=true
 
                               }).ToList(), "Value", "Text");
-            
+
             //if user is not a onsite person disable the bulk upload feature.
             UserLocation = Query.Where(x => x.MasterName.ToUpper() == "RESOURCE" && x.Value.ToLower() == Session["IUsecode"].ToString().ToLower()).Select(x => x.s_Value3).FirstOrDefault();
             ViewBag.BulkUpload = (string.Equals(UserLocation, "Jersey", StringComparison.OrdinalIgnoreCase) ? "block" : "none");
-           
+
         }
 
 
