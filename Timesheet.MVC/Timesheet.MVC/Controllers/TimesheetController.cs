@@ -657,6 +657,14 @@ namespace Timesheet.MVC.Controllers
 
 
                                                    }).ToList(), "Value", "Text");
+            // Added by Piyush to fetch data for dropdown in timesheet
+
+            ViewBag.TaskList = new SelectList(
+                            Query.Where(x => x.MasterName.ToUpper() == "TASKS").Select(x => new SelectListItem()
+                            {
+                                Text = x.Text,
+                                Value = x.Value
+                            }).ToList(), "value", "Text");
             ViewBag.ProjectList = new SelectList(
                                       Query.Where(x => x.MasterName.ToUpper() == "PROJECT").Select(x => new SelectListItem()
                                       {

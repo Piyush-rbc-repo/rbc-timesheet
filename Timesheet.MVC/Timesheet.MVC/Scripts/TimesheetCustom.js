@@ -571,12 +571,17 @@ function FillEdit(object) {
     var ProjectName = obj.ProjectName;
     var ResourceName = obj.ResourceName;
     var SubActivity = obj.SubActivity;
+    var Tasks = obj.Tasks;
     var n_id = obj.n_id;
     console.log(CrNumber);
     $("#Id").val(n_id);
     $('#ActivityId option').filter(function () {
         //may want to use $.trim in here
         return $(this).text() == Activity;
+    }).prop('selected', true);
+    $('#TasksId option').filter(function () {
+        //may want to use $.trim in here
+        return $(this).text() == Tasks;
     }).prop('selected', true);
     $("#ResourceId option").filter(function () {
         //may want to use $.trim in here
@@ -721,6 +726,7 @@ var onSuccess = function (resultobj) {
         var CrNumber = ($('#CrNumberId option:selected').val() == "" ? "" : $('#CrNumberId option:selected').text());
 
         var Activity = $('#ActivityId option:selected').text();
+        var Tasks = $('#TasksId option:selected').text();
 
 
         var newobj = {
