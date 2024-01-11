@@ -209,6 +209,7 @@ mastermodal.push(ProjectMaster);
 mastermodal.push(ResourceMaster);
 mastermodal.push(StatusMaster);
 //mastermodal.push(WeekMaster);
+mastermodal.push(TasksMaster);
 mastermodal.push(YearMaster);
 
 

@@ -482,7 +482,7 @@ function submitDelete(rowids, mode, partialSubmit) {
     var deletemethod = 'DeleteRecords'
 
     $.ajax({
-        url: '' + (mode == "D" ? deletemethod : submitmethod),
+        url: 'timesheet/' + (mode == "D" ? deletemethod : submitmethod),
         data: { i: s.join(), partialSubmit: partialSubmit },
         method: 'post',
         success: function (ResultObj) {
@@ -631,7 +631,6 @@ function Duplicate(object)
     var ResourceName = obj.ResourceName;
     var Tasks = obj.Tasks;
     var SubActivity = obj.SubActivity;
-    var Tasks = obj.Tasks;
 
     $('#ActivityId option').filter(function () {
         //may want to use $.trim in here

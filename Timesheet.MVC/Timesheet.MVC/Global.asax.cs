@@ -41,7 +41,7 @@ namespace Timesheet.MVC
 
        protected void Session_End(Object sender, EventArgs e)
        {
-            FormsAuthentication.SignOut();
+            //FormsAuthentication.SignOut();
        }
 
         //protected void Application_AuthenticateRequest(Object sender, EventArgs e)
