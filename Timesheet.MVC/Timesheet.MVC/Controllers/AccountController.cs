@@ -26,8 +26,9 @@ namespace Timesheet.MVC.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult Index()
+        public ActionResult Index(string DisplayMessage="")        
         {
+            TempData["DisplayMessage"] = DisplayMessage;
             if (User.Identity.IsAuthenticated )
             {
                 var username = User.Identity.Name;
@@ -46,8 +47,8 @@ namespace Timesheet.MVC.Controllers
                 return RedirectToAction("Index", "Timesheet");
             }
             else
-            {
-                PrincipalContext pc = null;
+            {                
+                PrincipalContext pc = null; 
                 UserPrincipal principal = null;
                 var username = HttpContext.User.Identity.Name;
 
@@ -130,7 +131,7 @@ namespace Timesheet.MVC.Controllers
                     else
                     {
 
-                        ModelState.AddModelError("Not Authenticated", "Invalid user id and password combination.");
+                        ModelState.AddModelError("Not Authenticated", "Invalid User Name and Password!");
 
                         return View(modal);
 
@@ -147,10 +148,11 @@ namespace Timesheet.MVC.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult LogOut()
+        public ActionResult LogOut(string DisplayMessage)
         {
             FormsAuthentication.SignOut();
-            return RedirectToAction("Index", "Account", null);
+            return RedirectToAction("Index", "Account", new { DisplayMessage = DisplayMessage });
+
         }
 
 

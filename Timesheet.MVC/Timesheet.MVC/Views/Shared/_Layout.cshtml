@@ -24,6 +24,13 @@
             pointer-events: none;
         }
 
+        .display-message {
+            font-size: 20px;
+            align-items: center;
+            margin-left: 34%;
+            margin-top: 11%;
+        }
+
         .arrow_box:after {
             border-color: rgba(255, 255, 255, 0);
             border-bottom-color: #fff;
@@ -57,14 +64,14 @@
             text-align: center;
             background-color: #eaeaea;
         }
-Viewbag.Titl
-            #menu ul li:not(last-child) {
-                border-left: 1px solid #111;
-            }
+        Viewbag.Titl
+        #menu ul li:not(last-child) {
+            border-left: 1px solid #111;
+        }
 
-            #menu ul li:last-child {
-                border-right: 1px solid #111;
-            }
+        #menu ul li:last-child {
+            border-right: 1px solid #111;
+        }
     </style>
 </head>
 <body>
@@ -76,31 +83,31 @@ Viewbag.Titl
                 <div>
                     <div style="color:#fff;">
                         @*<div style="display:block;z-index:999;position:absolute;" id="menu">
-                            <ul>
-                                <li style="display: inline;">@Html.ActionLink("Timesheet", "Index", "Timesheet")</li>
-                                <li style="display: inline;">@Html.ActionLink("Dashboard", "Index", "Report")</li>
-                                <li style="display: inline;">@Html.ActionLink("Masters", "Index", "Master")</li>
-                            </ul>
-                        </div>*@
+                                <ul>
+                                    <li style="display: inline;">@Html.ActionLink("Timesheet", "Index", "Timesheet")</li>
+                                    <li style="display: inline;">@Html.ActionLink("Dashboard", "Index", "Report")</li>
+                                    <li style="display: inline;">@Html.ActionLink("Masters", "Index", "Master")</li>
+                                </ul>
+                            </div>*@
                     </div>
                     <div class="nav navbar-text navbar-right" style="color:#fff;">
                         <button type="button" onclick="javacript:$('#usermenu').slideToggle()" class="btn btn-default btn-sm">
                             <span class="glyphicon glyphicon-user"></span> @Session["IUserName"].ToString()
                         </button>
                         <div class="arrow_box" style="display:none;z-index:999;position:absolute;padding:5px;background-color:#fff;color:#111;border-radius:5px;border-bottom-right-radius:5px;box-shadow: 1px 1px 1px #888888;" id="usermenu">
-                            <ul style="list-style:none;line-height:3;padding:2px;min-width:150px">                                
+                            <ul style="list-style:none;line-height:3;padding:2px;min-width:150px">
                                 @if (Session["IRole"].ToString() == "Project Manager" || Session["IRole"].ToString() == "Admin")
                                 {
-                                <li><span class="glyphicon glyphicon-calendar"></span> @Html.ActionLink("Timesheet", "Index", "Timesheet")</li>
-                                <li><span class="glyphicon glyphicon-time"></span> @Html.ActionLink("Dashboard", "Index", "Report")</li>
+                                    <li><span class="glyphicon glyphicon-calendar"></span> @Html.ActionLink("Timesheet", "Index", "Timesheet")</li>
+                                    <li><span class="glyphicon glyphicon-time"></span> @Html.ActionLink("Dashboard", "Index", "Report")</li>
                                 }
                                 @if (Session["IRole"].ToString() == "Admin")
                                 {
-                                <li><span class="glyphicon glyphicon-book"></span> @Html.ActionLink("Masters", "Index", "Master")</li>                                
+                                    <li><span class="glyphicon glyphicon-book"></span> @Html.ActionLink("Masters", "Index", "Master")</li>
                                 }
-                           
+
                                 <li><span class="glyphicon glyphicon-log-out"></span> @Html.ActionLink("Logout", "Logout", "Account")</li>
-                                
+
                             </ul>
                         </div>
                     </div>
@@ -111,6 +118,10 @@ Viewbag.Titl
                 <div class="navbar-header">
                     @Html.ActionLink("Login", "index", "Account", new { area = "" }, new { @class = "navbar-brand" })
                 </div>
+            }
+            @if (Convert.ToString(TempData["DisplayMessage"]) != "")
+            {
+                <div class="display-message"> @TempData["DisplayMessage"]</div>
             }
         </div>
     </div>

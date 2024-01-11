@@ -15,13 +15,13 @@ var Approvebtnparameter = { caption: "", buttonicon: "ui-icon-check", onClickBut
 var Rejectbtnparameter = { caption: "", buttonicon: "ui-icon-closethick", onClickButton: RejectAll, position: "last", title: "", cursor: "pointer" };
 var Savebtnparameter = { caption: "", buttonicon: "ui-icon-disk", onClickButton: SaveData, position: "last", title: "", cursor: "pointer" };
 $(document).ready(function () {
-   
+
 
     LoadSummaryGrid();
     LoadDetailGridEditable();
     LoadCrProjectBasedGrid();
     $('form#searchForm').trigger('submit');
-    
+
     $("#LinkExport").click(function () {
         var formData = {
             "ResourceId": $("#ResourceId").val(),
@@ -33,56 +33,55 @@ $(document).ready(function () {
 
         $.post('/Report/GetNoOfResource/', formData, function (data, status, xhr) {
             if (status == "success") {
-
-                var noOfResource = parseInt(data);
-                
-                for (i = 0; i < noOfResource; i++) {
-                    //Commented By Sasmita to call new DownloadExcel function
-                   // window.open("/report/excel?" + jQuery.param(formData) + "&noOfResource=" + i);
-                    window.open("/report/DownloadExcel?" + jQuery.param(formData) + "&noOfResource=" + i);                 
-
-                }
+                if (parseInt(data) != "NaN") {
+                    var noOfResource = parseInt(data);
+                    for (i = 0; i < noOfResource; i++) {
+                        //Commented By Sasmita to call new DownloadExcel function
+                        // window.open("/report/excel?" + jQuery.param(formData) + "&noOfResource=" + i);
+                        window.open("/report/DownloadExcel?" + jQuery.param(formData) + "&noOfResource=" + i);
+                    }
+                } else {
+                    window.location.href = window.location.origin + "/Account/Logout?DisplayMessage=Session Timed out! Please Login Again!";
+                }//()
             }
         });
-  
     });
 
     //Added By Sasmita | Monthly Export | Multiple Worksheets
 
-    $("#LinkMonthlyExport").click(function () {   
-      
+    $("#LinkMonthlyExport").click(function () {
+
         var formData = {
             "MonthId": $("#ddlMonthId").val(),
         };
-
-        window.open("/report/MonthlyExport?" + jQuery.param(formData));
-
+        var url = "/report/MonthlyExport?" + jQuery.param(formData);
+        window.location.href = url;
     });
 
 
+
 });
-function LoadSummaryGrid()
-{
-    
+function LoadSummaryGrid() {
+
     jQuery("#listSummary").jqGrid({
         datatype: "local",
         data:SummaryData,
-        
+
         altRows: false,
         colNames: ["CrId", "ProjectId", "Project Name", "Cr#", "Billable(Hrs)", "Billable(Days)", "NonBillable(Days)", "Approved Cost"],
         colModel: [
-            
+
             { index: 'crId', name: "crId", width: 120, hidden: true},
             { index: 'ProjectId', name: "ProjectId", width: 150, hidden: true},
             { index: 'ProjectName', name: "ProjectName", width: 200 },
             { index: 'CrNumber', name: "CrNumber", width: 60 },
-            
+
             { index: 'BilledHrs', name: "BilledHrs", width: 70, formatter: 'number' ,formatoptions: { decimalSeparator: '.', decimalPlaces: 3}},
             { index: 'BilledDays', name: "BilledDays", width: 80, formatter: 'number' ,formatoptions: { decimalSeparator: '.', decimalPlaces: 3}},
             { index: 'UnBilledDays', name: "UnBilledDays", width: 50, formatter: 'number', formatoptions: { decimalSeparator: '.', decimalPlaces: 3 } },
             { index: 'ApprovedCost', name: "ApprovedCost", width: 50, formatter: 'number', formatoptions: { decimalSeparator: '.', decimalPlaces: 3 } }
-           // { index: 'Detail', name: "Detail", editable: true,width: 25  ,align: 'center', formatter: DetailsFormatter,title:false },
-           //{ index: 'CrDB', name: "CrDB", editable: true, width: 25, align: 'center', formatter: CrDbFormatter, title: false },
+            // { index: 'Detail', name: "Detail", editable: true,width: 25  ,align: 'center', formatter: DetailsFormatter,title:false },
+            //{ index: 'CrDB', name: "CrDB", editable: true, width: 25, align: 'center', formatter: CrDbFormatter, title: false },
         ],
         pager: "#listSummarypager",
         rowNum: 30,
@@ -104,7 +103,7 @@ function LoadSummaryGrid()
             GetProjectCrLevelDashboard(obj.crId, obj.ProjectId, $("#ddlMonthId").val());
             fetchdetails(obj.crId ,obj.ProjectId );
 
-            
+
         },
         gridComplete: function () {
 
@@ -115,7 +114,7 @@ function LoadSummaryGrid()
             var rows = $("#listSummary").getDataIDs();
 
             for (var i = 0; i < rows.length; i++) {
-                
+
                 BillableHrs = BillableHrs + parseFloat($("#listSummary").getCell(rows[i], "BilledHrs"));
                 BillableDays = BillableDays + parseFloat($("#listSummary").getCell(rows[i], "BilledDays"));
                 NonBillableDays = NonBillableDays + parseFloat($("#listSummary").getCell(rows[i], "UnBilledDays"));
@@ -131,15 +130,15 @@ function LoadSummaryGrid()
 
     });
     $('#listSummary').jqGrid('navGrid', '#listSummarypager',
-                parameters).jqGrid('navButtonAdd', "#listSummarypager", Approvebtnparameter).jqGrid('navButtonAdd', "#listSummarypager", Rejectbtnparameter);
+        parameters).jqGrid('navButtonAdd', "#listSummarypager", Approvebtnparameter).jqGrid('navButtonAdd', "#listSummarypager", Rejectbtnparameter);
 
 }
 function checkBox(obj) {
-   // $('.check').prop('checked', obj.checked);
+    // $('.check').prop('checked', obj.checked);
 }
 
-function LoadDetailGridEditable() {    
-   
+function LoadDetailGridEditable() {
+
     $("#list").jqGrid("clearGridData", true).trigger("reloadGrid");
     jQuery("#list").jqGrid({
         datatype: "local",
@@ -147,7 +146,7 @@ function LoadDetailGridEditable() {
 
         altRows: false,
         colNames: ["Id", "Approver Status", "Date", "Resource Name", "ProjectId", "Project Name","CrNumberId", "Cr#", "ActivityId", "Activity", "Sub Activity",
-                    "Entered", "Approved", "Billable", "Status"],
+            "Entered", "Approved", "Billable", "Status"],
         colModel: [
             { index: 'n_id', name: "n_id", width: 1, hidden: true, key: true },
             { index: 'n_status', name: "n_status", width: 1, hidden: true },
@@ -166,77 +165,77 @@ function LoadDetailGridEditable() {
                         return s + '</select>';
                     },
                     dataEvents: [
-                    {
-                        type: 'change',
-                        fn: function (e) {
+                        {
+                            type: 'change',
+                            fn: function (e) {
 
-                            var id = e.target.id.split("_");
-                            $("#list").jqGrid('setCell', id[0], "ProjectId", $(this).val());
-                        }
-                    }]
+                                var id = e.target.id.split("_");
+                                $("#list").jqGrid('setCell', id[0], "ProjectId", $(this).val());
+                            }
+                        }]
                 }
             },
             { index: 'CrNumberId', name: "CrNumberId", width: 150, hidden: true },
             {
                 index: 'CrNumber', name: "CrNumber", width: 100, edittype: 'select', editable: true, required: true, editoptions: {
                     dataUrl: '/report/GetCrList',
-                    buildSelect: function (data) {                       
+                    buildSelect: function (data) {
                         var response = jQuery.parseJSON(data);
                         var s = "<select>";
                         jQuery.each(response, function (i, item) {
                             s += '<option value="' + response[i].Value + '">' + response[i].Text + '</option>';
-                           
+
                         })
                         return s + '</select>';
                     },
                     dataEvents: [
-                    {
-                        type: 'change',
-                            fn: function (e) {                                
-                                var id = e.target.id.split("_");                               
+                        {
+                            type: 'change',
+                            fn: function (e) {
+                                var id = e.target.id.split("_");
                                 $("#list").jqGrid('setCell', id[0], "CrNumberId", $(this).val());
-                        }
-                    }]
+                            }
+                        }]
                 }
             },
             //{ index: 'CrNumber', name: "CrNumber", width: 60 },
-             { index: 'ActivityId', name: "ActivityId", width: 150, hidden: true },
-                    {
-                        index: 'Activity', name: "Activity", width: 200, edittype: 'select', editable: true, required: true, editoptions: {
-                            dataUrl: '/report/GetActivityList',
-                            buildSelect: function (data) {
-                                var response = jQuery.parseJSON(data);
-                                var s = "<select>";
-                                jQuery.each(response, function (i, item) {
-                                    s += '<option value="' + response[i].Value + '">' + response[i].Text + '</option>';
-                                })
-                                return s + '</select>';
-                            },
-                            dataEvents: [
-                            {
-                                type: 'change',
-                                fn: function (e) {
-
-                                    var id = e.target.id.split("_");
-                                    $("#list").jqGrid('setCell', id[0], "ActivityId", $(this).val());
-                                }
-                            }]
-                        }
+            { index: 'ActivityId', name: "ActivityId", width: 150, hidden: true },
+            {
+                index: 'Activity', name: "Activity", width: 200, edittype: 'select', editable: true, required: true, editoptions: {
+                    dataUrl: '/report/GetActivityList',
+                    buildSelect: function (data) {
+                        var response = jQuery.parseJSON(data);
+                        var s = "<select>";
+                        jQuery.each(response, function (i, item) {
+                            s += '<option value="' + response[i].Value + '">' + response[i].Text + '</option>';
+                        })
+                        return s + '</select>';
                     },
+                    dataEvents: [
+                        {
+                            type: 'change',
+                            fn: function (e) {
+
+                                var id = e.target.id.split("_");
+                                $("#list").jqGrid('setCell', id[0], "ActivityId", $(this).val());
+                            }
+                        }]
+                }
+            },
             //{ index: 'Activity', name: "Activity", width: 150 },
             { index: 'SubActivity', name: "SubActivity", width: 180, editable: true, required: true},
             { index: 'Efforts', name: "Efforts", width: 60, align: "right", edittype: 'text', editrules: { align: 'right', required: true, number: true, }, formatoptions: { decimalSeparator: '.', decimalPlaces: 1 } },
             { index: 'ActualEfforts', name: "ActualEfforts", width: 65, align: "right", required: true , editable: true}, 
             { index: 'Billable', name: "Billable", width: 50, edittype: 'select', editable: true,required: true, editoptions: { value: "1:Yes;0:No" } },
             { index: 'Status', name: "Status", width: 65 },
-           
+
 
 
         ],
         pager: "#listpager",
         rowNum: 30,
         cache: false,
-       
+
         rowList: [30, 20, 10],
         sortname: "ActivityDate",
         viewrecords: true,
@@ -251,9 +250,9 @@ function LoadDetailGridEditable() {
                 jQuery('#list').restoreRow(lastSel);
                 lastSel = id;
             }
-             jQuery('#list').editRow(id, true);
+            jQuery('#list').editRow(id, true);
         },
-        
+
         gridComplete: function () {
 
             var colsum = 0.00;
@@ -285,19 +284,19 @@ function LoadDetailGridEditable() {
     });
 
     $('#list').jqGrid('navGrid', '#listpager',
-                 parameters).jqGrid('navButtonAdd', "#listpager", Savebtnparameter).jqGrid('navButtonAdd', "#listpager", { caption: "", buttonicon: "ui-icon-check", onClickButton: ApproveSelected, position: "last", title: "", cursor: "pointer" }).jqGrid('navButtonAdd', "#listpager", { caption: "", buttonicon: "ui-icon-closethick", onClickButton: RejectAllSelected, position: "last", title: "", cursor: "pointer" });
+        parameters).jqGrid('navButtonAdd', "#listpager", Savebtnparameter).jqGrid('navButtonAdd', "#listpager", { caption: "", buttonicon: "ui-icon-check", onClickButton: ApproveSelected, position: "last", title: "", cursor: "pointer" }).jqGrid('navButtonAdd', "#listpager", { caption: "", buttonicon: "ui-icon-closethick", onClickButton: RejectAllSelected, position: "last", title: "", cursor: "pointer" });
 
 }
 
 function RejectAllSelected() {
-   var Ids = $("#list").jqGrid('getGridParam', 'selarrrow');
+    var Ids = $("#list").jqGrid('getGridParam', 'selarrrow');
    if (Ids.length == 0)
    {
-       toastr.options.positionClass = 'toast-top-center';
-       toastr.options.timeOut = '1000';
-       toastr["error"]("Please select a record")
-       return;
-   }
+        toastr.options.positionClass = 'toast-top-center';
+        toastr.options.timeOut = '1000';
+        toastr["error"]("Please select a record")
+        return;
+    }
     $("#rejectionDialog").dialog({
         modal: true,
         resizable: false,
@@ -308,8 +307,8 @@ function RejectAllSelected() {
             "Reject": function () {
                 if ($("#txtreject").val().length != 0)
                 {
-                RejectSelected();
-                $(this).dialog("close");
+                    RejectSelected();
+                    $(this).dialog("close");
                 }
             },
             Cancel: function () {
@@ -373,7 +372,7 @@ function RejectSelected() {
                         }
                     });
                 }
-  
+
             }
             else {
                 toastr["error"](result.ps_Msg)
@@ -441,13 +440,13 @@ function ApproveSelected()
                 //setTimeout(
                 //    function () {
 
-                        //window.location.reload()
-                        //$("#list").jqGrid('delRowData', Ids)
-                        //for (var i = Ids.length - 1; i >= 0; i--) {
-                        //    $('#list').delRowData(Ids[i]);
-                        //}
-                    //}, 3000
-                    //);
+                //window.location.reload()
+                //$("#list").jqGrid('delRowData', Ids)
+                //for (var i = Ids.length - 1; i >= 0; i--) {
+                //    $('#list').delRowData(Ids[i]);
+                //}
+                //}, 3000
+                //);
 
             }
             else {
@@ -473,31 +472,35 @@ function clearAll()
     return true;
 }
 onSuccess = function (data) {
-    
-    
+
+
     clearAll();
     var objArray = [];
     if (data != null) {
-        
-        if (data.Summary.length == undefined) {
-            objArray.push(data.Summary);
-        }
-        else {
-            if (data.Summary.length == 0 || data.Summary == null) {
-                toastr.options.positionClass = 'toast-top-center';
-                toastr.options.timeOut = '1000';
-                toastr["warning"]("No data found!!!");
-
-
+        if (data.Summary) {
+            if (data.Summary.length == undefined) {
+                objArray.push(data.Summary);
             }
             else {
-                console.log(data.Summary);
-                objArray = data.Summary;
+                if (data.Summary.length == 0 || data.Summary == null) {
+                    toastr.options.positionClass = 'toast-top-center';
+                    toastr.options.timeOut = '1000';
+                    toastr["warning"]("No data found!!!");
+
+
+                }
+                else {
+                    console.log(data.Summary);
+                    objArray = data.Summary;
+                }
             }
         }
+        else {
+            window.location.href = window.location.origin + "/Account/Logout?DisplayMessage=Session Timed out! Please Login Again!";//()
+        }
     }
-    
-    
+
+
     jQuery("#listSummary").jqGrid('setGridParam', { data: objArray }).trigger('reloadGrid');
 }
 
@@ -524,7 +527,7 @@ function fetchdetails(crId,PrjId)
             {
                 objArray = data;
             }
-            
+
             jQuery("#list").jqGrid('setGridParam', { data: objArray }).trigger('reloadGrid');
             $("#detaildatalist").show();
         },
@@ -535,26 +538,26 @@ function fetchdetails(crId,PrjId)
 }
 function RejectAll()
 {
-    
-            $("#rejectionDialog").dialog({
-                modal: true,
-                resizable: false,
-                height: "auto",
-                width: 300,
+
+    $("#rejectionDialog").dialog({
+        modal: true,
+        resizable: false,
+        height: "auto",
+        width: 300,
                 title:'Reject',
-                buttons: {
-                    "Reject": function () {
-                        Reject();
-                        $(this).dialog("close");
-                    },
-                    Cancel: function () {
-                        $(this).dialog("close");
-                    }
-                }
-            });
-            
-        
-    
+        buttons: {
+            "Reject": function () {
+                Reject();
+                $(this).dialog("close");
+            },
+            Cancel: function () {
+                $(this).dialog("close");
+            }
+        }
+    });
+
+
+
 }
 function Reject()
 {
@@ -576,9 +579,9 @@ function Reject()
                 toastr["success"](result.ps_Msg)
                 $("#txtreject").val("");
                 setTimeout(
-                   function () { window.location.reload() }, 3000
-                    );
-                
+                    function () { window.location.reload() }, 3000
+                );
+
             }
             else {
                 toastr["error"](result.ps_Msg)
@@ -608,7 +611,7 @@ function ApproveAll()
         {
             if (result.pn_Error == false)
             {
-                
+
                 toastr["success"](result.ps_Msg)
                 setTimeout(
                     function () {
@@ -616,8 +619,8 @@ function ApproveAll()
                         window.location.reload()
 
                     }, 3000
-                    );
-                
+                );
+
             }
             else
             {
@@ -627,34 +630,34 @@ function ApproveAll()
         },
         failure:onFailure
     });
-    
+
 }
 
 function SaveData()
 {
-    
+
     var rows = $("#list").getDataIDs();
     for (var i = 0; i < rows.length; i++) {
         jQuery("#list").saveRow(rows[i], false, 'clientArray');
-       // jQuery("#list").saveRow(rows[i]);
+        // jQuery("#list").saveRow(rows[i]);
 
     }
     //$("#list").trigger('reloadGrid');
     var obj = $("#list").jqGrid('getGridParam', 'data');
-    
-        var modal = obj;
+
+    var modal = obj;
     $.ajax({
-        
+
         url: '/report/ModifyData',
         type:"POST",
         data: '{ modal : '+JSON.stringify(modal)+'}',
         contentType: "application/json; charset=utf-8",
         traditional: true,
         success: function (result) {
-            if (result.pb_Error == true) {                
+            if (result.pb_Error == true) {
                 toastr["error"](result.ps_Msg);
             }
-            {                
+            {
                 toastr["success"](result.ps_Msg);
                 $('form#searchForm').trigger('submit');
             }
@@ -676,7 +679,7 @@ function LoadCrProjectBasedGrid()
         colModel: [
             { index: 'FullName', name: "FullName", width: 120 },
             { index: 'TotalBilledThisMonth', name: "TotalBilledThisMonth", width: 60, formatter: 'number', align: 'right', formatoptions: { decimalSeparator: '.', decimalPlaces: 1 } },
-            { index: 'CostPerHr', name: "CostPerHr", width: 60, formatter: 'number', align: 'right', formatoptions: { decimalSeparator: '.', decimalPlaces: 1 } },  
+            { index: 'CostPerHr', name: "CostPerHr", width: 60, formatter: 'number', align: 'right', formatoptions: { decimalSeparator: '.', decimalPlaces: 1 } },
             { index: 'CostThisMonth', name: "CostThisMonth", width: 60, formatter: 'number', align: 'right' },
             { index: 'EarlierCost', name: "EarlierCost", width: 80, formatter: 'number', align: 'right' },
             { index: 'TotalCost', name: "TotalCost", width: 70, formatter: 'number', align: 'right' },
@@ -687,28 +690,28 @@ function LoadCrProjectBasedGrid()
         footerrow: true,
         rowList: [30, 20, 10],
         gridComplete: function () {
-        var BilledHrs = 0.00;
-        var Cost = 0.00;
-        var EarlierCost = 0.00;
-        var TotalCost = 0.00;
-        var rows = $("#crPrjSummary").getDataIDs();
-        for (var i = 0; i < rows.length; i++) {
-            BilledHrs = BilledHrs + parseFloat($("#crPrjSummary").getCell(rows[i], "TotalBilledThisMonth"));
-            Cost = Cost + parseFloat($("#crPrjSummary").getCell(rows[i], "CostThisMonth"));
-            EarlierCost = EarlierCost + parseFloat($("#crPrjSummary").getCell(rows[i], "EarlierCost"));
-            TotalCost = TotalCost + parseFloat($("#crPrjSummary").getCell(rows[i], "TotalCost"));
-            
-        }
-        $("#crPrjSummary").jqGrid('footerData', 'set', {
-            'FullName': 'Total',
+            var BilledHrs = 0.00;
+            var Cost = 0.00;
+            var EarlierCost = 0.00;
+            var TotalCost = 0.00;
+            var rows = $("#crPrjSummary").getDataIDs();
+            for (var i = 0; i < rows.length; i++) {
+                BilledHrs = BilledHrs + parseFloat($("#crPrjSummary").getCell(rows[i], "TotalBilledThisMonth"));
+                Cost = Cost + parseFloat($("#crPrjSummary").getCell(rows[i], "CostThisMonth"));
+                EarlierCost = EarlierCost + parseFloat($("#crPrjSummary").getCell(rows[i], "EarlierCost"));
+                TotalCost = TotalCost + parseFloat($("#crPrjSummary").getCell(rows[i], "TotalCost"));
+
+            }
+            $("#crPrjSummary").jqGrid('footerData', 'set', {
+                'FullName': 'Total',
             'TotalBilledThisMonth':BilledHrs.toFixed(1),
-            'CostThisMonth': Cost.toFixed(2),
-            'EarlierCost': EarlierCost.toFixed(2),
-            'TotalCost': TotalCost.toFixed(2)
+                'CostThisMonth': Cost.toFixed(2),
+                'EarlierCost': EarlierCost.toFixed(2),
+                'TotalCost': TotalCost.toFixed(2)
 
-        }, false);
+            }, false);
 
-    }
+        }
     });
 }
 
@@ -745,9 +748,9 @@ function getPostObj(obj)
     $.each(obj, function (i) {
         modal.push({
 
-               n_id: obj[i].n_id,
-               Efforts: obj[i].Efforts,
-               Billable: obj[i].Billable,
+            n_id: obj[i].n_id,
+            Efforts: obj[i].Efforts,
+            Billable: obj[i].Billable,
 
         });
 
@@ -781,20 +784,20 @@ function LoadCrBasedGrid()
 
 }
 
- $("#ddlMonthId").change(function () {
+$("#ddlMonthId").change(function () {
     var month= $(this).find("option:selected").text();
     $.post('/Report/GetWeekIdList/', {month : month}, function (data, status, xhr) {
         if (status == "success") {
             $('#ddlWeekId').empty();
-                $(data).each(function () {
+            $(data).each(function () {
                 var option = $("<option />");
- 
+
                 option.html(this.Text);
                 option.val(this.Value);
                 $('#ddlWeekId').append(option);
-            });       
+            });
         }
     });
 
-    
-    });
+
+});

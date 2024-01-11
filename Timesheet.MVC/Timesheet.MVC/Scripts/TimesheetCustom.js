@@ -15,8 +15,8 @@ $(document).ready(function () {
     jQuery("#Activitydate").datepicker({ dateFormat: 'dd/mm/yy' });
     jQuery("#ToDate").datepicker({ dateFormat: 'dd/mm/yy' });
     $("#ProjectId").change(function () {
-      
-       
+
+
         LoadCrs(this,'');
     });
 
@@ -30,16 +30,15 @@ $(document).ready(function () {
     loadTimesheetGrid();
     $('form#searchForm').trigger('submit');
     $("#LinkExport").click(function () {
-        
-        var formData = {            
-           // "Resource": $("#Resources").val(),
-           // "ResourceId": $("#ResourceId").val(),
+        var formData = {
+            // "Resource": $("#Resources").val(),
+            // "ResourceId": $("#ResourceId").val(),
             "Resource": $("#Resource").val(),
             "FromDate": $("#FromDate").val(),
             "ToDate": $("#ToDate").val()
         };
         // Commented By Sasmita to call new DownloadExcel function
-       // window.open("/timesheet/excel?" + jQuery.param(formData));
+        // window.open("/timesheet/excel?" + jQuery.param(formData));
         window.open("/timesheet/DownloadExcel?" + jQuery.param(formData));
 
     });
@@ -47,8 +46,7 @@ $(document).ready(function () {
     //Added by Sasmita for DefaulterListDownalod | Starts
 
     $("#LinkExportDefaulter").click(function () {
-      
-        var formData = {            
+        var formData = {
             "FromDate": $("#FromDate").val(),
             "ToDate": $("#ToDate").val()
         };
@@ -67,7 +65,7 @@ $(document).ready(function () {
 //    $("#CrNumberId option[value!='']").remove();
 
 //    if ($(obj).val() == "") {
-        
+
 //        $("#CrNumberId").attr('disabled', 'disabled');
 //    }
 //    else {
@@ -92,7 +90,7 @@ $(document).ready(function () {
 //                                return $(this).text() == CrNumber;
 //                            }).prop('selected', true)
 //                        }
-                        
+
 //                       $("#CrNumberId").removeAttr('disabled');
 //                    }
 //                    else {                        
@@ -114,8 +112,8 @@ $(document).ready(function () {
 //Added by Sasmita from Old code
 function LoadCrs(obj, CrNumber) {
     $("#CrNumberId option[value!='']").remove();
-   
-    if ($(obj).val() == "") {       
+
+    if ($(obj).val() == "") {
         //$("#CrNumberId").attr('disabled', 'disabled');
         $.ajax(
             {
@@ -186,7 +184,7 @@ function LoadCrs(obj, CrNumber) {
             });
 
     }
-    else {       
+    else {
 
         $.ajax(
             {
@@ -350,10 +348,10 @@ function loadTimesheetGrid() {
     jQuery("#list").jqGrid({
         datatype: "local",
         autowidth: true,
-        
+
         altRows: false,
         colNames: ["Id", "Activity Date", "Resource Name", "Project Name", "Cr Name", "Activity", "Sub Activity", "Tasks",
-                    "Efforts (Hrs.)", "Efforts (Days)", "Billable", "Comments",
+            "Efforts (Hrs.)", "Efforts (Days)", "Billable", "Comments",
                     "Status", "n_status", "RejectionReason", "Edit","Copy", "Delete"],
         colModel: [
             { index: 'n_id', name: "n_id", width: 10, hidden: true, key: true },
@@ -373,13 +371,13 @@ function loadTimesheetGrid() {
             { index: 'Status', name: "Status", width: 60 ,title:false},
             { index: 'n_status', name: "n_status", width: 1, hidden: true },
             { index: 'RejectionReason', name: "RejectionReason", width: 1, hidden: true },
-           { index: 'Edit', name: "Edit", editable: true, align: 'center', formatter: EditFormatter, width: 40 },
-           { index: 'Copy', name: "Copy", editable: true, align: 'center', formatter: CopyFormatter, width: 40 },
-           { index: 'Delete', name: "Delete", editable: true, align: 'center', formatter: DeletFormatter, width: 40 },
+            { index: 'Edit', name: "Edit", editable: true, align: 'center', formatter: EditFormatter, width: 40 },
+            { index: 'Copy', name: "Copy", editable: true, align: 'center', formatter: CopyFormatter, width: 40 },
+            { index: 'Delete', name: "Delete", editable: true, align: 'center', formatter: DeletFormatter, width: 40 },
         ],
         pager: "#listpager",
         rowNum: 100,
-        
+
         onSelectAll: function (aRowids, status) {
             if (status = false) {
                 return;
@@ -416,7 +414,7 @@ function loadTimesheetGrid() {
         height: "400px",
         multiselect: false,
         viewrecords: true,
-        gridview: true, 
+        gridview: true,
         autoencode: true,
         caption: "",
         footerrow: true,
@@ -440,7 +438,7 @@ function loadTimesheetGrid() {
             var rows = $("#list").getDataIDs();
             for (var i = 0; i < rows.length; i++) {
                 var Billable = $("#list").getCell(rows[i], "Billable");
-                
+
                 if (Billable == "Yes") {
                     $("#list").jqGrid('setRowData', rows[i], false, { color: 'black', background: '#E3F6CE' });
                     colsum = colsum + parseFloat($("#list").getCell(rows[i], "Efforts"));
@@ -449,31 +447,31 @@ function loadTimesheetGrid() {
                 {
                     NonBillable = NonBillable + parseFloat($("#list").getCell(rows[i], "Efforts"));
 
-                    
+
                 }
-                
+
             }
             $("#list").jqGrid('footerData', 'set', { 'CrNumber': NonBillable, 'ProjectName': 'Non Billable Hours', 'SubActivity': 'Billable Hours', 'Efforts': colsum }, false);
 
         }
 
     });
-   
+
 }
 function confirmDelete(id) {
     var ids = []
     ids.push(id);
     if (confirm('do you really want to delete the record?')) {
-        submitDelet(ids, "D");
+        submitDelete(ids, "D");
 
     }
 
 }
 function submit() {
-    submitDelet($("#list").getDataIDs(), "s","false");
-   // submitDelet(jQuery("#list").jqGrid('getGridParam', 'selarrrow'), "S");
+    submitDelete($("#list").getDataIDs(), "s", "false");
+    // submitDelet(jQuery("#list").jqGrid('getGridParam', 'selarrrow'), "S");
 }
-function submitDelet(rowids, mode,partialSubmit) {
+function submitDelete(rowids, mode, partialSubmit) {
     ClearCreateForm();
     if (rowids.length == 0) {
         toastr["error"]("Please select record to update");
@@ -485,65 +483,70 @@ function submitDelet(rowids, mode,partialSubmit) {
 
     $.ajax({
         url: 'timesheet/' + (mode == "D" ? deletemethod : submitmethod),
-        data: { i: s.join(), partialSubmit: partialSubmit},
+        data: { i: s.join(), partialSubmit: partialSubmit },
         method: 'post',
         success: function (ResultObj) {
-            if (ResultObj.result.pn_Error == true) {
-                console.log(ResultObj);
-                toastr["error"](ResultObj.result.ps_Msg);
-                
+            if (ResultObj.result) {
+                if (ResultObj.result.pn_Error == true) {
+                    console.log(ResultObj);
+                    toastr["error"](ResultObj.result.ps_Msg);
+
                 if(mode=="s" && (ResultObj.CauseList!=undefined || ResultObj.CauseList.length>0))
-                {
-                    var stringResult = "";
+                    {
+                        var stringResult = "";
                     for (var i = 0; i < ResultObj.CauseList.length; i++)
                     {
-                        stringResult = stringResult + ResultObj.CauseList[i].Cause;
+                            stringResult = stringResult + ResultObj.CauseList[i].Cause;
 
-                    }
-
-                    var dynamicDialog = $('<div id="rundialog"><table style="border:1px solid #d9d99">' + stringResult + '</table></div>');
-                    dynamicDialog.dialog({
-                        title: "Invalid Timesheet",
-                        modal: true,
-                        width: '800px',
-                        height:'auto',
-                        buttons: {
-                            'Close': function () {
-                                $(this).dialog("close");
-                            }
                         }
-                    });
+
+                        var dynamicDialog = $('<div id="rundialog"><table style="border:1px solid #d9d99">' + stringResult + '</table></div>');
+                        dynamicDialog.dialog({
+                            title: "Invalid Timesheet",
+                            modal: true,
+                            width: '800px',
+                        height:'auto',
+                            buttons: {
+                                'Close': function () {
+                                    $(this).dialog("close");
+                                }
+                            }
+                        });
+                    }
+                }
+                else {
+                    if (ResultObj.type == "D") {
+                        $.each(s, function () {
+                            $("#list").delRowData(this).trigger('reloadGrid');
+                        });
+                    }
+                    else {
+                        var griddata = $("#list").jqGrid('getGridParam', 'data');
+
+                        for (var i = 0; i < ResultObj.Idarray.split(',').length; i++) {
+
+                            var obj = $.each(griddata, function (j) {
+
+                            if  ((this.n_id == ResultObj.Idarray.split(',')[i]) && this.Status != "Approved" )
+                                    this.Status = "Submitted";
+                                this.n_status = 1;
+                            });
+                            //$("#list").getRowData(ResultObj.Idarray.split(',')[i]);
+                            //obj.IsSubmitted = "Submitted";
+                            //$('#list').jqGrid('setRowData', ResultObj.Idarray.split(',')[i], obj);
+                            //$('#list').setRowData(ResultObj.Idarray.split(',')[i], obj);
+                        }
+
+                        $("#list").jqGrid('setGridParam', { data: griddata }).trigger('reloadGrid');
+                    }
+                    toastr.options.positionClass = 'toast-top-center';
+                    toastr.options.timeOut = '1000';
+                    toastr["success"](ResultObj.result.ps_Msg);
                 }
             }
             else {
-                if (ResultObj.type == "D") {
-                    $.each(s, function () {
-                        $("#list").delRowData(this).trigger('reloadGrid');
-                    });
-                }
-                else {
-                    var griddata = $("#list").jqGrid('getGridParam', 'data');
-
-                    for (var i = 0; i < ResultObj.Idarray.split(',').length; i++) {
-
-                        var obj = $.each(griddata, function (j) {
-
-                            if  ((this.n_id == ResultObj.Idarray.split(',')[i]) && this.Status != "Approved" )
-                                this.Status = "Submitted";
-                                 this.n_status = 1;
-                        });
-                        //$("#list").getRowData(ResultObj.Idarray.split(',')[i]);
-                        //obj.IsSubmitted = "Submitted";
-                        //$('#list').jqGrid('setRowData', ResultObj.Idarray.split(',')[i], obj);
-                        //$('#list').setRowData(ResultObj.Idarray.split(',')[i], obj);
-                    }
-
-                    $("#list").jqGrid('setGridParam', { data: griddata }).trigger('reloadGrid');
-                }
-                toastr.options.positionClass = 'toast-top                       center';
-                toastr.options.timeOut = '1000';
-                toastr["success"](ResultObj.result.ps_Msg);
-            }
+                window.location.href = window.location.origin + "/Account/Logout?DisplayMessage=Session Timed out! Please Login Again!";
+            }//()
 
         },
         failure: onFailure
@@ -552,10 +555,8 @@ function submitDelet(rowids, mode,partialSubmit) {
 
 }
 $("#btnSubmitPartially").click(function () {
-    submitDelet($("#list").getDataIDs(), "s","true");
+    submitDelete($("#list").getDataIDs(), "s", "true");
 });
-
-
 
 function FillEdit(object) {
     ClearCreateForm();
@@ -582,7 +583,6 @@ function FillEdit(object) {
         //may want to use $.trim in here
         return $(this).text() == Tasks;
     }).prop('selected', true);
-
     $("#ResourceId option").filter(function () {
         //may want to use $.trim in here
         return $(this).text() == ResourceName;
@@ -593,7 +593,7 @@ function FillEdit(object) {
         return $(this).text() == ProjectName;
     }).prop('selected', true);
 
-    
+
     $("#IsBillable option").filter(function () {
         //may want to use $.trim in here
         return $(this).text() == Billable;
@@ -610,9 +610,9 @@ function FillEdit(object) {
         LoadCrs($("#ProjectId"), CrNumber);
     }
 
-    
 
-    
+
+
 
 }
 
@@ -631,7 +631,6 @@ function Duplicate(object)
     var ResourceName = obj.ResourceName;
     var Tasks = obj.Tasks;
     var SubActivity = obj.SubActivity;
-    var Tasks = obj.Tasks;
 
     $('#ActivityId option').filter(function () {
         //may want to use $.trim in here
@@ -665,7 +664,7 @@ function Duplicate(object)
     $("#Efforts").val(Efforts);
     $("#Comments").val(Comments);
     $("#Activitydate").val(ActivityDate);
-    
+
 
 }
 function EditFormatter(cellvalue, options, rowObject) {
@@ -715,55 +714,60 @@ var onSuccess = function (resultobj) {
 
     toastr.options.positionClass = 'toast-top-center';
     toastr.options.timeOut = '1000';
-    toastr["success"](resultobj.msg);
-    var result = resultobj.model;
-    var obj = jQuery("#list").jqGrid('getGridParam', 'data');
-    var resourceName = $('#ResourceId option:selected').text();
+    if (resultobj.msg) {
+        toastr["success"](resultobj.msg);
+        var result = resultobj.model;
+        var obj = jQuery("#list").jqGrid('getGridParam', 'data');
+        var resourceName = $('#ResourceId option:selected').text();
 
-    var ProjName = $('#ProjectId option:selected').text();
+        var ProjName = $('#ProjectId option:selected').text();
 
-    var CrNumber = ($('#CrNumberId option:selected').val() == "" ? "" : $('#CrNumberId option:selected').text());
+        var CrNumber = ($('#CrNumberId option:selected').val() == "" ? "" : $('#CrNumberId option:selected').text());
 
-    var Activity = $('#ActivityId option:selected').text();
-    var Tasks = $('#TasksId option:selected').text();
+        var Activity = $('#ActivityId option:selected').text();
+        var Tasks = $('#TasksId option:selected').text();
 
 
-    var newobj = {
-        n_id: result.Id, ActivityDate: result.Activitydate, ResourceName: resourceName, ProjectName: ProjName, CrNumber: CrNumber, Activity: Activity,
+        var newobj = {
+            n_id: result.Id, ActivityDate: result.Activitydate, ResourceName: resourceName, ProjectName: ProjName, CrNumber: CrNumber, Activity: Activity,
         SubActivity: result.SubActivity, Tasks : Tasks,Efforts: result.Efforts, Efforts_Days: parseFloat(result.Efforts) / 8.0, Billable: (result.IsBillable ? 'Yes' : 'No'), Comments: result.Comments,
-        Status: 'Saved',
-        /*IsSubmitted: (result.IsSubmit ? 'Submitted' : 'Saved'),*/
-    }
-    if (result.mode == "I") {
-        obj.push(newobj);
-        jQuery("#list").jqGrid('setGridParam', { data: obj }).trigger("reloadGrid");
+            Status: 'Saved',
+            /*IsSubmitted: (result.IsSubmit ? 'Submitted' : 'Saved'),*/
+        }
+        if (result.mode == "I") {
+            obj.push(newobj);
+            jQuery("#list").jqGrid('setGridParam', { data: obj }).trigger("reloadGrid");
+        }
+        else {
+            var griddata = $("#list").jqGrid('getGridParam', 'data');
+            var obj = $.each(griddata, function (j) {
+
+                if (this.n_id == result.Id)
+                    griddata[j] = newobj;
+            });
+            $("#list").jqGrid('setGridParam', { data: griddata }).trigger('reloadGrid');
+            //$("#list").getRowData(ResultObj.Idarray.split(',')[i]);
+            //obj.IsSubmitted = "Submitted";
+            //$('#list').jqGrid('setRowData', ResultObj.Idarray.split(',')[i], obj);
+            //$('#list').setRowData(ResultObj.Idarray.split(',')[i], obj);
+        }
+
+
+
+        //$('#list').jqGrid('setRowData', result.Id, newobj);
+        ClearCreateForm();
     }
     else {
-        var griddata = $("#list").jqGrid('getGridParam', 'data');
-        var obj = $.each(griddata, function (j) {
-
-            if (this.n_id == result.Id)
-                griddata[j] = newobj;
-        });
-        $("#list").jqGrid('setGridParam', { data: griddata }).trigger('reloadGrid');
-        //$("#list").getRowData(ResultObj.Idarray.split(',')[i]);
-        //obj.IsSubmitted = "Submitted";
-        //$('#list').jqGrid('setRowData', ResultObj.Idarray.split(',')[i], obj);
-        //$('#list').setRowData(ResultObj.Idarray.split(',')[i], obj);
-    }
-
-
-
-    //$('#list').jqGrid('setRowData', result.Id, newobj);
-    ClearCreateForm();
+        window.location.href = window.location.origin + "/Account/Logout?DisplayMessage=Session Timed out! Please Login Again!";
+    }  //()
 }
 
 function UploadFile(btn)
 {
-    
-    
+
+
     var _file = document.getElementById("file1"),
-           _progress = $('#uploadProgressBar');
+        _progress = $('#uploadProgressBar');
 
     if (_file.files.length === 0)
     {
@@ -798,14 +802,14 @@ function UploadFile(btn)
                         }
                         //update progressbar
                         $(_progress).css("width", +percent + "%");
-                      //  $(progress_bar_id + " .status").text(percent + "%");
+                        //  $(progress_bar_id + " .status").text(percent + "%");
                     }, true);
                 }
                 return xhr;
             },
             mimeType: "multipart/form-data",
             success: function (result) {
-                 var res = JSON.parse(result);
+                var res = JSON.parse(result);
                 console.log("success");
                 console.log(res);
                 $(_progress).css("width", "0%"); //reset Progress bar
@@ -839,7 +843,7 @@ function UploadFile(btn)
                             str = str + "</tr>";
 
                         }
-                        
+
                         var wheight = window.screen.availHeight - 150;
                         console.log(wheight);
                         var dynamicDialog = $('<div id="rundialog"><table style="border:1px solid #d9d99">' + str + '</table></div>');
@@ -865,47 +869,44 @@ function UploadFile(btn)
                     $("#divbulk").dialog("close");
                 }
 
-                
+
                 //$(result_output).html(res); //output response from server
                 $(btn).removeAttr('disabled');
             }
         }).done(function (res) { //
             $(btn).removeAttr('disabled');
-            
+
         })
-        .fail(function (err) {
-            
-            console.log(err);
-            toastr["error"](err);
-        });
+            .fail(function (err) {
+
+                console.log(err);
+                toastr["error"](err);
+            });
     }
 
 }
 
 
 var onSearchSuccess = function (result) {
-    
     jQuery("#list").jqGrid('clearGridData').trigger('reloadGrid');
-    var data = [];  
-    if (result.length == undefined) {
-        data.push(result);
-
-    }
-    else {
-        data = result;
-
-    }
-    if (data.length == 0) {
-        toastr.options.positionClass = 'toast-top-center';
-        toastr.options.timeOut = '1000';
+    var data = [];
+    if (Array.isArray(result)) {
+        if (result.length == undefined)
+            data.push(result);
+        else
+            data = result;
+        if (data.length == 0) {
+            toastr.options.positionClass = 'toast-top-center';
+            toastr.options.timeOut = '1000';
             toastr["error"]("No record found...");
+        }
+        else {
+            jQuery("#list").jqGrid('setGridParam', { data: result }).trigger("reloadGrid");
+        }
     }
     else {
-
-
-        jQuery("#list").jqGrid('setGridParam', { data: result }).trigger("reloadGrid");
+        window.location.href = window.location.origin + "/Account/Logout?DisplayMessage=Session Timed out! Please Login Again!";//()
     }
-
 }
 
 
