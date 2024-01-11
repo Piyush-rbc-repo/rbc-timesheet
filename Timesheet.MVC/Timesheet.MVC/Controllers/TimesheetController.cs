@@ -352,8 +352,17 @@ namespace Timesheet.MVC.Controllers
             string month = FromDate.Split('/')[1].ToString();
             //string NewFromDate; // This variable is declared but not assigned in the provided code
 
-            // Assuming NewFromDate has been assigned a valid value
-            DateTime dt = DateTime.ParseExact(FromDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+            string NewFromDate;
+
+            //This is to append 0 in the month. When you don't select any date from start date calendar the date was coming as 01/9/2021 (an example) . 0 is missing in leftside of 9
+            if (month.Length < 2)
+                NewFromDate = FromDate.Split('/')[0].ToString() + "/" + (string.Format("{0}{1}", "0", month)) + "/" + FromDate.Split('/')[2].ToString();
+
+            else
+                NewFromDate = FromDate;
+
+            DateTime dt = DateTime.ParseExact(NewFromDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+
             string monthName = dt.ToString("MMMM");
 
             // Convert the list of TimesheetDefaulterListModal to a DataTable

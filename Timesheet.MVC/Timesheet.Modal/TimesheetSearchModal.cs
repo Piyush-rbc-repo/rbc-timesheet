@@ -147,6 +147,7 @@ namespace Timesheet.Modal
         public string ResourceID { get; set; }
         public string ResourceName { get; set; }
         public string MissingDate { get; set; }
+        public string Location { get; set; }
     }
 
     public class MonthlyInvoiceModal

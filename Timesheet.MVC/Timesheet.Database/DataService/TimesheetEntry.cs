@@ -457,8 +457,9 @@ namespace Timesheet.Database.DataService
                 {
                     ResourceID = x.Field<string>("ResourceID"),
                     ResourceName = x.Field<string>("ResourceName"),
-                    MissingDate = x.Field<string>("MissingDate")
-                   
+                    MissingDate = x.Field<string>("MissingDate"),
+                    Location = x.Field<string>("Location")
+
                 }).ToList();
 
             }
